@@ -4,7 +4,7 @@ import java.util.logging.Logger;
 public class Main {
 
     public static void main(String[] args) throws Exception{
-        System.out.println("Hello\n this is nima kiiir");
+        System.out.println("Hello\nthis is nima");
         Logger mongoLogger = Logger.getLogger( "org.mongodb.driver" );
         mongoLogger.setLevel(Level.WARNING);
         MongoHandler mongoHandler = new MongoHandler();

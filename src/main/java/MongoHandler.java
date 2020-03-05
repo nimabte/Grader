@@ -1,18 +1,22 @@
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.*;
 import org.bson.Document;
 import org.bson.conversions.Bson;
+import org.bson.types.ObjectId;
 
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Projections.*;
 
 public class MongoHandler {
     private MongoClient mongoClient;
     private MongoDatabase database;
-    private MongoCollection<Document> collection;
+    private MongoCollection<Document> usersCollection;
     private static String uri = "mongodb+srv://analytics:analytics-password@mflix-tfkan.mongodb.net/test?retryWrites=true&w=majority";
     private Document document;
     private Bson bson;
@@ -34,54 +38,35 @@ public class MongoHandler {
 
     void documentInstance() {
         mongoClient = MongoClients.create(uri);
-        database = mongoClient.getDatabase("test");
-        collection = database.getCollection("users");
+        database = mongoClient.getDatabase("bebras");
 
-    /*
-    The basic data structures in MongoDB are documents. The document
-    model is what we consider to be the best way to represent data.
-    Using documents, makes your data definition as close as possible to
-    your OOP object models.
+//        MongoIterable<String> collections = database.listCollectionNames();
+//        for (String collectionName: collections) {
+//            System.out.println(collectionName);
+//        }
+        usersCollection = database.getCollection("bebras17-3-4");
 
-    Since we are dealing with an Object-Oriented Programing language (OOP)
-    like Java, having a class that expresses the documents structure,
-    becomes imperative.
-    */
+//        document = new Document("name", new Document("first", "NIMA").append("last", "bte"));
+//        usersCollection.insertOne(document);
+        ObjectId oi = new ObjectId("5a0873e4fdb1771e6fc06fbd");
+        System.out.println(usersCollection);
+//        Bson queryFilter = and(eq("u", oi));
+        Bson queryFilter = and(eq("u", oi));
+//        Document submissionData17 =
+//                usersCollection
+//                        .find()
+//                        // this feels much more declarative
+//                        .projection(fields(include("_id", "u", "st", "a")))
+//                        .iterator()
+//                        .tryNext();
+//        System.out.println(submissionData17);
 
-        document = new Document("name", new Document("first", "NIMA").append("last", "bte"));
+//        usersCollection.find().forEach((Consumer<Document>) doc ->
+//                System.out.println(doc.toJson()));
+        FindIterable<Document> fit = usersCollection.find();
+        fit.forEach((Consumer<Document>) System.out::println);
 
-    /*
-    This document defines a MongoDB document that looks like this in its
-    json format:
-
-     {
-        "name": {
-                "first": "Norberto",
-                "last": "Leite"
-        }
-     }
-    */
-        collection.insertOne(document);
-    /*
-    We use documents for everything in MongoDB.
-    - define data objects
-    - define queries
-    - define update operations
-    - define configuration settings
-    ...
-
-    At the Java layer we have the Document class but also the Bson class.
-    The Document class implements the Bson interface, because Documents
-    are BSON data structures.
-    */
-
-//        Assert.assertTrue(document instanceof Bson);
-
-    /*
-    We will also use instances of Bson, throughout the course, to define
-    fine tune aspects of our queries like query operators and aggregation
-    stages. More on that in the next lectures.
-    */
 
     }
+
 }
