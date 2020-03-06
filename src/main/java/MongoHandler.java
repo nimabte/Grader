@@ -31,21 +31,24 @@ public class MongoHandler {
     private Document document;
     private Bson bson;
     private CodecRegistry pojoCodecRegistry;
+    private CodecRegistry codecRegistry;
 
     void mongoClientInstance() {
         ConnectionString connectionString = new ConnectionString(uri);
+
+        // create codec registry for POJOs
+         pojoCodecRegistry = fromProviders(PojoCodecProvider.builder().automatic(true).build());
+         codecRegistry = fromRegistries(MongoClientSettings.getDefaultCodecRegistry(), pojoCodecRegistry);
+
         MongoClientSettings mongoClientSettings = MongoClientSettings.builder()
                 .applyConnectionString(connectionString)
                 .applicationName("Grader")
+                .codecRegistry(codecRegistry)
                 .applyToConnectionPoolSettings(
                         builder -> builder.maxWaitTime(1000, TimeUnit.MILLISECONDS))
                 .build();
 
         mongoClient = MongoClients.create(mongoClientSettings);
-
-        // create codec registry for POJOs
-        pojoCodecRegistry = fromRegistries(MongoClientSettings.getDefaultCodecRegistry(),
-                fromProviders(PojoCodecProvider.builder().automatic(true).build()));
 
 //        Assert.assertNotNull(mongoClient);
 //        MongoClient mongoClient = MongoClients.create(uri);
@@ -55,14 +58,15 @@ public class MongoHandler {
 //        mongoClient = MongoClients.create(uri);
 
         // get handle to "bebras" database
-        database = mongoClient.getDatabase("bebras").withCodecRegistry(pojoCodecRegistry);
+        database = mongoClient.getDatabase("bebras");
+//        database = mongoClient.getDatabase("bebras").withCodecRegistry(codecRegistry);
         //database = database.withCodecRegistry(pojoCodecRegistry);
 
         // get a handle to the "bebras17-3-4" collection
         MongoCollection<Submission> collection = database.getCollection("bebras17-3-4", Submission.class);
 
-        //Submission somebody = collection.find().first();
-        //System.out.println(somebody);
+//        Submission somebody = collection.find().first();
+//        System.out.println(somebody);
 
         // get all the documents in the collection and print them out
         Consumer<Submission> submissionConsumer = new Consumer<Submission>() {
@@ -71,7 +75,7 @@ public class MongoHandler {
                 System.out.println(submission);
             }
         };
-
+//
         collection.find().forEach(submissionConsumer);
 
 //        MongoIterable<String> collections = database.listCollectionNames();
