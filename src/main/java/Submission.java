@@ -1,14 +1,24 @@
 import org.bson.types.ObjectId;
+import java.util.Date;
+import java.util.List;
 
-public class Submission {
-
+public final class Submission {
+    private ObjectId _id;
     private ObjectId pid;
-    private ObjectId uid;
-    private ObjectId ans;
-    private int localTime;
+    private ObjectId u;
+    private Date st;
+    private List<Answer> a;
+    private int lt;
 
     public Submission(){
 
+    }
+    public ObjectId getId() {
+        return _id;
+    }
+
+    public void setId(final ObjectId id) {
+        this._id = id;
     }
 
     public ObjectId getPid() {
@@ -19,30 +29,37 @@ public class Submission {
         this.pid = pid;
     }
 
-    public ObjectId getUid() {
-        return uid;
+    public ObjectId getU() {
+        return u;
     }
 
-    public void setUid(final ObjectId uid) {
-        this.uid = uid;
+    public void setU(final ObjectId u) {
+        this.u = u;
     }
 
-    public ObjectId getAns() {
-        return ans;
+    public Object getA() {
+        return a;
     }
 
-    public void setAns(final ObjectId ans) {
-        this.ans = ans;
+    public void setA(List<Answer> a) {
+        this.a = a;
     }
 
-    public int getLocalTime() {
-        return localTime;
+    public int getLt() {
+        return lt;
     }
 
-    public void setLocalTime(final int time) {
-        this.localTime = time;
+    public void setLt(final int time) {
+        this.lt = time;
     }
 
+    public Date getSt() {
+        return st;
+    }
+
+    public void setSt(final Date time) {
+        this.st = time;
+    }
 }
 
 
