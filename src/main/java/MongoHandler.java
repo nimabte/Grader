@@ -1,25 +1,29 @@
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.*;
+import com.mongodb.client.model.Indexes;
+import org.bson.BsonNull;
 import org.bson.Document;
 import org.bson.conversions.Bson;
-import org.bson.types.ObjectId;
 
-import java.util.ArrayList;
+import java.awt.*;
+import java.util.*;
+import java.util.List;
+import java.util.concurrent.SubmissionPublisher;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+import static com.mongodb.client.model.Aggregates.match;
+import static com.mongodb.client.model.Aggregates.sort;
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Projections.*;
+
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
-
-import java.util.List;
-
+import static com.mongodb.client.model.Sorts.ascending;
+import com.mongodb.client.AggregateIterable;
 import static com.mongodb.client.model.Filters.*;
-import static com.mongodb.client.model.Updates.*;
-import static java.util.Arrays.asList;
+import static com.mongodb.client.model.Sorts.orderBy;
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 
@@ -32,6 +36,8 @@ public class MongoHandler {
     private Bson bson;
     private CodecRegistry pojoCodecRegistry;
     private CodecRegistry codecRegistry;
+    MongoCollection<Submission> submissionMongoCollection;
+
 
     void mongoClientInstance() {
         ConnectionString connectionString = new ConnectionString(uri);
@@ -78,6 +84,7 @@ public class MongoHandler {
 //
         collection.find().forEach(submissionConsumer);
 
+
 //        MongoIterable<String> collections = database.listCollectionNames();
 //        for (String collectionName: collections) {
 //            System.out.println(collectionName);
@@ -108,5 +115,43 @@ public class MongoHandler {
 
 
     }
+    public  void getCollections(){
+        database = mongoClient.getDatabase("bebras");
+        submissionMongoCollection =  database.getCollection("bebras17-3-4", Submission.class);
+    }
+    List<Submission> readSubmissions(){
+        List<Submission> subs = new LinkedList<>();
+        Bson queryFilter = and(ne("pid", null));
+       // submissionMongoCollection.find().sort(orderBy(ascending("x", "y"))).limit(10000).
+//        submissionMongoCollection.find(queryFilter).sort(orderBy(ascending("st"))).
+//        forEach((Consumer<Submission>) submission -> {
+//                    //System.out.println(submission);
+//                    //System.out.println(subs.add(submission));
+//                    subs.add(submission);
+//                });
 
+
+//        AggregateIterable<Submission> aggregateIterable;
+//        aggregateIterable = submissionMongoCollection.aggregate
+//                (Arrays.asList(sort(ascending("st")))).allowDiskUse(true);
+//        aggregateIterable  = submissionMongoCollection.aggregate(Arrays.asList(sort(ascending("st")), match(ne("pid",
+//                new BsonNull()))));
+        // to sole the error 96, (Not enough RAM)
+        submissionMongoCollection.createIndex(Indexes.ascending("st"));
+        FindIterable<Submission> findIterable = submissionMongoCollection.find(queryFilter);
+//        findIterable = findIterable.sort(orderBy(ascending("st")));
+        findIterable = findIterable.sort(Indexes.ascending("st"));
+        MongoCursor<Submission> cursor = findIterable.iterator();
+        try {
+            while (cursor.hasNext()) {
+                //Submission s = cursor.next();
+                //System.out.println(s);
+                //subs.add(s);
+                subs.add(cursor.next());
+            }
+        } finally {
+            cursor.close();
+        }
+        return subs;
+    }
 }
