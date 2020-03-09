@@ -13,9 +13,10 @@ public class Main {
         //mongoHandler.documentInstance();
         mongoHandler.getCollections();
         List<Submission> submissions = mongoHandler.readSubmissions();
-        System.out.println(submissions.size());
-        System.out.println(submissions.get(0));
-        System.out.println(submissions.get(submissions.size()-1));
+        List<Problem> problems = mongoHandler.readProblems();
+        System.out.println(problems.size());
+        System.out.println(problems.get(0));
+        System.out.println(problems.get(problems.size()-1));
 
 
 

@@ -36,7 +36,8 @@ public class MongoHandler {
     private Bson bson;
     private CodecRegistry pojoCodecRegistry;
     private CodecRegistry codecRegistry;
-    MongoCollection<Submission> submissionMongoCollection;
+    MongoCollection<Submission> submissionCollection;
+    MongoCollection<Problem> problemCollection;
 
 
     void mongoClientInstance() {
@@ -117,13 +118,15 @@ public class MongoHandler {
     }
     public  void getCollections(){
         database = mongoClient.getDatabase("bebras");
-        submissionMongoCollection =  database.getCollection("bebras17-3-4", Submission.class);
+        submissionCollection =  database.getCollection("bebras17-3-4", Submission.class);
+        problemCollection =  database.getCollection("problems", Problem.class);
     }
+
     List<Submission> readSubmissions(){
-        List<Submission> subs = new LinkedList<>();
+        List<Submission> submissionList = new LinkedList<>();
         Bson queryFilter = and(ne("pid", null));
-       // submissionMongoCollection.find().sort(orderBy(ascending("x", "y"))).limit(10000).
-//        submissionMongoCollection.find(queryFilter).sort(orderBy(ascending("st"))).
+       // submissionCollection.find().sort(orderBy(ascending("x", "y"))).limit(10000).
+//        submissionCollection.find(queryFilter).sort(orderBy(ascending("st"))).
 //        forEach((Consumer<Submission>) submission -> {
 //                    //System.out.println(submission);
 //                    //System.out.println(subs.add(submission));
@@ -132,26 +135,44 @@ public class MongoHandler {
 
 
 //        AggregateIterable<Submission> aggregateIterable;
-//        aggregateIterable = submissionMongoCollection.aggregate
+//        aggregateIterable = submissionCollection.aggregate
 //                (Arrays.asList(sort(ascending("st")))).allowDiskUse(true);
-//        aggregateIterable  = submissionMongoCollection.aggregate(Arrays.asList(sort(ascending("st")), match(ne("pid",
+//        aggregateIterable  = submissionCollection.aggregate(Arrays.asList(sort(ascending("st")), match(ne("pid",
 //                new BsonNull()))));
         // to sole the error 96, (Not enough RAM)
-        submissionMongoCollection.createIndex(Indexes.ascending("st"));
-        FindIterable<Submission> findIterable = submissionMongoCollection.find(queryFilter);
-//        findIterable = findIterable.sort(orderBy(ascending("st")));
-        findIterable = findIterable.sort(Indexes.ascending("st"));
+        submissionCollection.createIndex(Indexes.ascending("st"));
+        FindIterable<Submission> findIterable =
+                submissionCollection
+                        .find(queryFilter)
+//                      .sort(orderBy(ascending("st")));
+                        .sort(Indexes.ascending("st"));
+
         MongoCursor<Submission> cursor = findIterable.iterator();
         try {
             while (cursor.hasNext()) {
                 //Submission s = cursor.next();
                 //System.out.println(s);
                 //subs.add(s);
-                subs.add(cursor.next());
+                submissionList.add(cursor.next());
             }
         } finally {
             cursor.close();
         }
-        return subs;
+        return submissionList;
+    }
+
+    List<Problem> readProblems(){
+        List<Problem> problemList = new LinkedList<>();
+        FindIterable<Problem> findIterable = problemCollection.find();
+        MongoCursor<Problem> cursor = findIterable.iterator();
+        try {
+            while (cursor.hasNext()) {
+                //System.out.println(cursor.next());
+                problemList.add(cursor.next());
+            }
+        } finally {
+            cursor.close();
+        }
+        return problemList;
     }
 }
