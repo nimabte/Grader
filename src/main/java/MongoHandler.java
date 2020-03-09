@@ -122,10 +122,11 @@ public class MongoHandler {
         problemCollection =  database.getCollection("problems", Problem.class);
     }
 
-    List<Submission> readSubmissions(){
-        List<Submission> submissionList = new LinkedList<>();
+    Queue<Submission> readSubmissions(){
+        Queue<Submission> submissionQueue = new LinkedList<>();
+//        Queue<Submission> submissionQueue2 = new ArrayDeque<>();
         Bson queryFilter = and(ne("pid", null));
-       // submissionCollection.find().sort(orderBy(ascending("x", "y"))).limit(10000).
+//        submissionCollection.find().sort(orderBy(ascending("x", "y"))).limit(10000).
 //        submissionCollection.find(queryFilter).sort(orderBy(ascending("st"))).
 //        forEach((Consumer<Submission>) submission -> {
 //                    //System.out.println(submission);
@@ -153,12 +154,12 @@ public class MongoHandler {
                 //Submission s = cursor.next();
                 //System.out.println(s);
                 //subs.add(s);
-                submissionList.add(cursor.next());
+                submissionQueue.add(cursor.next());
             }
         } finally {
             cursor.close();
         }
-        return submissionList;
+        return submissionQueue;
     }
 
     List<Problem> readProblems(){
