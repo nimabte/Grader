@@ -1,3 +1,7 @@
+import org.bson.BsonDocument;
+import org.bson.types.ObjectId;
+
+import java.util.HashMap;
 import java.util.List;
 import java.util.Queue;
 import java.util.logging.Level;
@@ -14,10 +18,9 @@ public class Main {
         //mongoHandler.documentInstance();
         mongoHandler.getCollections();
         Queue<Submission> submissions = mongoHandler.readSubmissions();
-        List<Problem> problems = mongoHandler.readProblems();
+        HashMap<ObjectId, BsonDocument> problems = mongoHandler.readProblems();
         System.out.println(problems.size());
-        System.out.println(problems.get(0));
-        System.out.println(problems.get(problems.size()-1));
+        System.out.println(problems.get(new ObjectId("5248895be4b04211cc6d798b")));
         System.out.println(submissions.size());
 
 //        for(int i = 0; i<submissions.size();i++){

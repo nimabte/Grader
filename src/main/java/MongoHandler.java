@@ -2,6 +2,7 @@ import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.*;
 import com.mongodb.client.model.Indexes;
+import org.bson.BsonDocument;
 import org.bson.BsonNull;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -22,6 +23,8 @@ import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
 import static com.mongodb.client.model.Sorts.ascending;
 import com.mongodb.client.AggregateIterable;
+import org.bson.types.ObjectId;
+
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Sorts.orderBy;
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
@@ -123,8 +126,8 @@ public class MongoHandler {
     }
 
     Queue<Submission> readSubmissions(){
-        Queue<Submission> submissionQueue = new LinkedList<>();
-//        Queue<Submission> submissionQueue2 = new ArrayDeque<>();
+        Queue<Submission> submissionQueue = new ArrayDeque<>();
+//        Queue<Submission> submissionQueue2 = new LinkedList<>();
         Bson queryFilter = and(ne("pid", null));
 //        submissionCollection.find().sort(orderBy(ascending("x", "y"))).limit(10000).
 //        submissionCollection.find(queryFilter).sort(orderBy(ascending("st"))).
@@ -162,18 +165,29 @@ public class MongoHandler {
         return submissionQueue;
     }
 
-    List<Problem> readProblems(){
-        List<Problem> problemList = new LinkedList<>();
+    HashMap<ObjectId, BsonDocument> readProblems(){
+        List<Problem> problemList = new ArrayList<>();
+        HashMap<ObjectId, BsonDocument> problemHashMap = new HashMap<>();
         FindIterable<Problem> findIterable = problemCollection.find();
         MongoCursor<Problem> cursor = findIterable.iterator();
         try {
             while (cursor.hasNext()) {
-                //System.out.println(cursor.next());
-                problemList.add(cursor.next());
+//                System.out.println(cursor.next());
+//                problemList.add(p);
+                Problem p = cursor.next();
+                problemHashMap.put(p.getId(),p.getP());
+//                System.out.println(problemHashMap.get(p.getId()));
+//                System.out.println("\n-----\n");
+//                System.out.println(p);
+//                System.out.println("\n **************************************\n");
+//                TimeUnit.MILLISECONDS.sleep(100);
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
+            //System.out.println(problemHashMap);
             cursor.close();
         }
-        return problemList;
+        return problemHashMap;
     }
 }
