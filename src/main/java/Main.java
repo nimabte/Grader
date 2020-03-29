@@ -143,17 +143,15 @@ public class Main {
 
     private static void userUpdate(ObjectId u_id, ObjectId p_id, int lt, int correctAnswer) {
         //TODO: Implement userUpdate:
-        System.out.println("uID: " + u_id.toString() + "| pid: " + p_id.toString() + "| Answer given:" + correctAnswer + "\n");
-        try {
-            TimeUnit.MILLISECONDS.sleep(1);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+//        System.out.println("uID: " + u_id.toString() + "| pid: " + p_id.toString() + "| Answer given:" + correctAnswer + "\n");
+//        try {
+//            TimeUnit.MILLISECONDS.sleep(1);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+
     }
 
-    private static boolean checkSubmission(HashMap<ObjectId, BsonDocument> problems, Submission submission) {
-
-        return true;
-    }
+    
 
 }
