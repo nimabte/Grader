@@ -33,7 +33,7 @@ import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 public class MongoHandler {
     private MongoClient mongoClient;
     private MongoDatabase database;
-    private MongoCollection<Document> usersCollection;
+    //private MongoCollection<Document> usersCollection;
     private static String uri = "mongodb+srv://analytics:analytics-password@mflix-tfkan.mongodb.net/test?retryWrites=true&w=majority";
     private Document document;
     private Bson bson;
@@ -41,8 +41,11 @@ public class MongoHandler {
     private CodecRegistry codecRegistry;
     MongoCollection<Submission> submissionCollection;
     MongoCollection<Problem> problemCollection;
+    MongoCollection<User> userCollection;
 
-
+    public static int testFunction(){
+        return 0;
+    }
     void mongoClientInstance() {
         ConnectionString connectionString = new ConnectionString(uri);
 
@@ -123,6 +126,7 @@ public class MongoHandler {
         database = mongoClient.getDatabase("bebras");
         submissionCollection =  database.getCollection("bebras17-3-4", Submission.class);
         problemCollection =  database.getCollection("problems", Problem.class);
+        userCollection =  database.getCollection("users", User.class);
     }
 
     Queue<Submission> readSubmissions(){
@@ -189,5 +193,31 @@ public class MongoHandler {
             cursor.close();
         }
         return problemHashMap;
+    }
+
+    HashMap<ObjectId, User> getUsers(){
+        List<Problem> userList = new ArrayList<>();
+        HashMap<ObjectId, User> userHashMap = new HashMap<>();
+        FindIterable<User> findIterable = userCollection.find();
+        MongoCursor<User> cursor = findIterable.iterator();
+        try {
+            while (cursor.hasNext()) {
+//                System.out.println(cursor.next());
+//                problemList.add(p);
+                User u = cursor.next();
+                userHashMap.put(u.getId(), u);
+//                System.out.println(problemHashMap.get(p.getId()));
+//                System.out.println("\n-----\n");
+//                System.out.println(p);
+//                System.out.println("\n **************************************\n");
+//                TimeUnit.MILLISECONDS.sleep(100);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            //System.out.println(problemHashMap);
+            cursor.close();
+        }
+        return userHashMap;
     }
 }
