@@ -141,7 +141,7 @@ public class Main {
         return true;
     }
 
-    private static void userUpdate(ObjectId u_id, ObjectId p_id, int lt, int correctAnswer) {
+    private static void userUpdate(ObjectId u_id, ObjectId p_id, int lt, int u_answer) {
         //TODO: Implement userUpdate:
 //        System.out.println("uID: " + u_id.toString() + "| pid: " + p_id.toString() + "| Answer given:" + correctAnswer + "\n");
 //        try {

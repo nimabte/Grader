@@ -20,12 +20,14 @@ public class Event {
         this._id = id;
     }
 
+    //returns the corresponding competition OR NULL if it does not exist/
     public Competition getCompetition(ObjectId id) {
-        return competitions.get(_id); //returns the corresponding competition OR NULL if it does not exist/
+        return competitions.get(_id);
     }
 
+    //returns a list of competition ids in this event.
     public List<ObjectId> getCompetitionList() {
-        return(new ArrayList<ObjectId>(competitions.keySet())); //returns a list of competition ids in this event.
+        return(new ArrayList<ObjectId>(competitions.keySet()));
     }
 
     public void addCompetition(Competition c) {
