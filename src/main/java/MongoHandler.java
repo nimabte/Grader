@@ -3,30 +3,29 @@ import com.mongodb.MongoClientSettings;
 import com.mongodb.client.*;
 import com.mongodb.client.model.Indexes;
 import org.bson.BsonDocument;
-import org.bson.BsonNull;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
-import java.awt.*;
 import java.util.*;
 import java.util.List;
-import java.util.concurrent.SubmissionPublisher;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-import static com.mongodb.client.model.Aggregates.match;
-import static com.mongodb.client.model.Aggregates.sort;
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
 
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
+
+import static com.mongodb.client.model.Projections.fields;
+import static com.mongodb.client.model.Projections.include;
 import static com.mongodb.client.model.Sorts.ascending;
-import com.mongodb.client.AggregateIterable;
+
 import org.bson.types.ObjectId;
 
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Sorts.orderBy;
+import static com.mongodb.client.model.Updates.set;
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 
@@ -67,8 +66,8 @@ public class MongoHandler {
 //        MongoClient mongoClient = MongoClients.create(uri);
     }
 
-    void documentInstance() {
-//        mongoClient = MongoClients.create(uri);
+    void userGrade2Int() {
+        mongoClient = MongoClients.create(uri);
 
         // get handle to "bebras" database
         database = mongoClient.getDatabase("bebras");
@@ -76,28 +75,28 @@ public class MongoHandler {
         //database = database.withCodecRegistry(pojoCodecRegistry);
 
         // get a handle to the "bebras17-3-4" collection
-        MongoCollection<Submission> collection = database.getCollection("bebras17-3-4", Submission.class);
+        //MongoCollection<Submission> collection = database.getCollection("bebras17-3-4", Submission.class);
 
 //        Submission somebody = collection.find().first();
 //        System.out.println(somebody);
 
         // get all the documents in the collection and print them out
-        Consumer<Submission> submissionConsumer = new Consumer<Submission>() {
-            @Override
-            public void accept(Submission submission) {
-                System.out.println(submission);
-            }
-        };
-//
-        collection.find().forEach(submissionConsumer);
+//        Consumer<Submission> submissionConsumer = new Consumer<Submission>() {
+//            @Override
+//            public void accept(Submission submission) {
+//                System.out.println(submission);
+//            }
+//        };
+////
+//        collection.find().forEach(submissionConsumer);
 
 
-//        MongoIterable<String> collections = database.listCollectionNames();
-//        for (String collectionName: collections) {
-//            System.out.println(collectionName);
-//        }
+        MongoIterable<String> collections = database.listCollectionNames();
+        for (String collectionName: collections) {
+            System.out.println(collectionName);
+        }
 
-//        usersCollection = database.getCollection("bebras17-3-4");
+        MongoCollection<Document> usersCol = database.getCollection("users");
 
 //        document = new Document("name", new Document("first", "NIMA").append("last", "bte"));
 //        usersCollection.insertOne(document);
@@ -105,17 +104,24 @@ public class MongoHandler {
 //        System.out.println(usersCollection);
 //        Bson queryFilter = and(eq("u", oi));
 //        Bson queryFilter = and(eq("u", oi));
-//        Document submissionData17 =
-//                usersCollection
+//        Document u =
+//                usersCol
 //                        .find()
 //                        // this feels much more declarative
-//                        .projection(fields(include("_id", "u", "st", "a")))
+//                        .projection(fields(include("_id", "grade")))
 //                        .iterator()
 //                        .tryNext();
-//        System.out.println(submissionData17);
+//        System.out.println(u);
 
-//        usersCollection.find().forEach((Consumer<Document>) doc ->
-//                System.out.println(doc.toJson()));
+        usersCol.find().projection(fields(include("_id", "grade"))).forEach((Consumer<Document>) doc -> {
+            String st = (String) doc.get("grade");
+            if(st != null) {
+                int obj = Integer.parseInt(st);
+                //doc.put("grade", obj);
+                usersCol.updateOne(doc, set("grade",obj));
+            }
+            System.out.println(doc.toJson());
+        });
 
 //        FindIterable<Document> fit = usersCollection.find();
 //        fit.forEach((Consumer<Document>) System.out::println);
@@ -127,6 +133,15 @@ public class MongoHandler {
         submissionCollection =  database.getCollection("bebras17-3-4", Submission.class);
         problemCollection =  database.getCollection("problems", Problem.class);
         userCollection =  database.getCollection("users", User.class);
+        //Consumer<User> userConsumer = new Consumer<User>;
+        User u =
+                userCollection
+                .find()
+                        // this feels much more declarative
+                        .projection(fields(include("_id", "u", "st", "a")))
+                        .iterator()
+                        .tryNext();
+        System.out.println(u);
     }
 
     Queue<Submission> readSubmissions(){
