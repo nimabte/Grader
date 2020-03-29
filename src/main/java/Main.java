@@ -95,11 +95,12 @@ public class Main {
                         try {
                             uAns = a.getInt32("r").getValue();
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            System.err.println(e.getLocalizedMessage()+"\npid:" + p_id + ", u_id:"+ u_id + ", lt:"+ lt);
                             break;
                         }
 
                         /*
+                        r = null => program error -> do nothing
                         r = 0 => no answer
                         r = -1 => wrong answer
                         r = 1 => correct answer

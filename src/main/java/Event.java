@@ -20,6 +20,13 @@ public class Event {
         this._id = id;
     }
 
+    public HashMap<ObjectId, Competition> getCompetitions(){
+        return competitions;
+    }
+    public void setCompetitions(HashMap<ObjectId, Competition> competitions){
+        this.competitions = competitions;
+    }
+
     //returns the corresponding competition OR NULL if it does not exist/
     public Competition getCompetition(ObjectId id) {
         return competitions.get(_id);

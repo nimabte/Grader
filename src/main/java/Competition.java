@@ -12,7 +12,7 @@ public class Competition {
     private int score; //the overall performance of the participant in this competition.
     private int rank_in_org; //rank in the organization
     private int rank_in_reg; //rank in the region
-    private HashMap<ObjectId, Integer> problems; // to store the score of the participant for each problem
+    private HashMap<ObjectId, Integer> tasks; // to store the score of the participant for each task (task = evaluated answer to the problem with the same p-id)
 
 
     public Competition(){
@@ -54,18 +54,25 @@ public class Competition {
         this.rank_in_reg = rank_in_reg;
     }
 
+    public HashMap<ObjectId, Integer> getTasks(){
+        return tasks;
+    }
+    public void setTasks(HashMap<ObjectId, Integer> tasks){
+        this.tasks = tasks;
+    }
+
     //returns the corresponding answer of user OR NULL if it does not exist/
-    public int getProblem(ObjectId id) {
-        return problems.get(_id);
+    public int getTask(ObjectId id) {
+        return tasks.get(_id);
     }
 
-    public void addProblem(ObjectId p_id, int u_answer) {
-        problems.put(p_id, u_answer);
+    public void addTask(ObjectId p_id, int u_answer) {
+        tasks.put(p_id, u_answer);
     }
 
-    //returns a list of problem ids in this competition.
-    public List<ObjectId> getProblemList() {
-        return(new ArrayList<ObjectId>(problems.keySet()));
+    //returns a list of task ids in this competition.
+    public List<ObjectId> getTaskList() {
+        return(new ArrayList<ObjectId>(tasks.keySet()));
     }
 
     @Override
@@ -94,7 +101,7 @@ public class Competition {
         if (getRank_in_reg() != competition.getRank_in_reg())  {
             return false;
         }
-        if (getProblemList() != null ? !getProblemList().equals(competition.getProblemList()) : competition.getProblemList() != null) {
+        if (getTaskList() != null ? !getTaskList().equals(competition.getTaskList()) : competition.getTaskList() != null) {
             return false;
         }
         return true;
@@ -117,7 +124,7 @@ public class Competition {
                 + ", score =" + score
                 + ", rank in organization =" + rank_in_org
                 + ", rank in the region =" + rank_in_reg
-                + ", list of problems =" + getProblemList()
+                + ", list of tasks =" + getTaskList()
                 + "}";
     }
 }
