@@ -43,7 +43,9 @@ public class User {
     private ObjectId regBy;
     private ArrayList<Event> events;
 
-    public User(){}
+    public User(){
+        events = new ArrayList<Event>();
+    }
     public User(Event event, Competition competition){
         events = new ArrayList<Event>();
         events.add(event);
@@ -96,6 +98,19 @@ public class User {
     }
     public void setEvents(ArrayList<Event> events){
         this.events = events;
+    }
+    public void addEvent(Event e){
+        events.add(e);
+    }
+    public void addCompetition(Competition c){
+        try {
+            if(events.size() == 0){
+                throw new Exception("User's event List is empty!!");
+            }
+            events.get(events.size() - 1).addCompetition(c);
+        } catch (Exception e) {
+            System.err.println(e.getLocalizedMessage());
+        }
     }
 
     public ArrayList<ObjectId> get_reg_by(){

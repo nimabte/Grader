@@ -10,6 +10,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Main {
+    private static final boolean DEBUG = true;
     private static final String BEBRAS = "bebras";
     private static final String BEBRAS_DYN = "bebras-dyn";
     private static final int CORRECT_ANSWER = 1;
@@ -17,33 +18,37 @@ public class Main {
     private static final int NO_ANSWER = 0;
     //private static ResourceBundle myBundle = ResourceBundle.getBundle("grader");
     public static HashMap<ObjectId, User> users;
+    private static Event event;
+    private static Competition competition_1;
 
     public static void main(String[] args) throws Exception {
-        System.out.println("Hello\nthis is nima");
+        event = new Event(new ObjectId());
+        competition_1 = new Competition(new ObjectId());
+        event.addCompetition(competition_1);
+        System.out.println("____________ EVENT INITIALIZING____________");
+        System.out.println(event);
+        //................................
         Logger mongoLogger = Logger.getLogger("org.mongodb.driver");
         mongoLogger.setLevel(Level.WARNING);
         MongoHandler mongoHandler = new MongoHandler();
         mongoHandler.mongoClientInstance();
-        //mongoHandler.documentInstance();
         mongoHandler.getCollections();
-        //Queue<Submission> submissions = mongoHandler.readSubmissions();
-       // HashMap<ObjectId, BsonDocument> problems = mongoHandler.readProblems();
-       // System.out.println(problems.size()); //ok
+        //................................
+        Queue<Submission> submissions = mongoHandler.readSubmissions();
+        HashMap<ObjectId, BsonDocument> problems = mongoHandler.readProblems();
+        //System.out.println(problems.size()); //ok
         //System.out.println(problems.get(new ObjectId("5248895be4b04211cc6d798b")));
         //System.out.println(submissions.size()); //ok
+        //for(int i = 0; i<submissions.size();i++){
+            //System.out.println(submissions.get(i));
+        //}
         users = mongoHandler.getUsers();
         users.forEach((k, v) -> {
+            v.addEvent(event);
             v.updateRegion();
             //System.out.println(v.updateRegion());
         });
-
-//        for(int i = 0; i<submissions.size();i++){
-//            System.out.println(submissions.get(i));
-//        }
-
-        //checkSubmissions(problems, submissions);
-        System.out.println("press enter! \n ");
-//        System.in.read();
+         checkSubmissions(problems, submissions);
     }
 
     private static boolean checkSubmissions(HashMap<ObjectId, BsonDocument> problems, Queue<Submission> submissions) {
@@ -51,8 +56,6 @@ public class Main {
         //TODO: add more types
         String type;
         BsonDocument p;
-        //int right;
-
         ObjectId p_id;
         ObjectId u_id;
         BsonDocument a;
@@ -150,12 +153,27 @@ public class Main {
 
     private static void userUpdate(ObjectId u_id, ObjectId p_id, int lt, int u_answer) {
         //TODO: Implement userUpdate:
-        System.out.println("uID: " + u_id.toString() + "| pid: " + p_id.toString() + "| Answer given:" + u_answer + "\n");
+        User u;
         try {
-            TimeUnit.MILLISECONDS.sleep(1);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            u = users.get(u_id);
+            if(u == null) {
+                //String msg = "User no found in Hashmap!";
+                throw new Exception("User no found in Hashmap!");
+            }
+        } catch (Exception e) {
+            System.err.println(e.getLocalizedMessage());
+            return;
         }
+
+
+
+        //.................................
+        System.out.println("uID: " + u_id.toString() + "| pid: " + p_id.toString() + "| Answer given:" + u_answer + "\n");
+//        try {
+//            TimeUnit.MILLISECONDS.sleep(1);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
 
     }
 
