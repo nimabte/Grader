@@ -10,6 +10,10 @@ public final class Problem {
     public Problem(){
 
     }
+    public Problem(ObjectId problemId, BsonDocument problem){
+        _id = problemId;
+        p = problem;
+    }
 
     public ObjectId getId() {
         return _id;

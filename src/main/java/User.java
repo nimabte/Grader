@@ -43,10 +43,12 @@ public class User {
     private ObjectId regBy;
     private ArrayList<Event> events;
 
-    public User(){
-
+    public User(){}
+    public User(Event event, Competition competition){
+        events = new ArrayList<Event>();
+        events.add(event);
+        events.get(0).addCompetition(competition);
     }
-
     public ObjectId getId() {
         return _id;
     }

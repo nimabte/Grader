@@ -10,7 +10,10 @@ public class Event {
     private HashMap<ObjectId, Competition> competitions;
 
     public Event(){
-
+    }
+    public Event(ObjectId eventId){
+        _id = eventId;
+        competitions = new HashMap<ObjectId, Competition>();
     }
 
     public ObjectId getId() {

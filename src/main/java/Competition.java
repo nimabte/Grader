@@ -18,6 +18,10 @@ public class Competition {
     public Competition(){
 
     }
+    public Competition(ObjectId competitionId){
+        _id = competitionId;
+        tasks = new HashMap<>();
+    }
 
     public ObjectId getId() {
         return _id;
