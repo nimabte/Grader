@@ -225,8 +225,8 @@ public class MongoHandler {
 //                problemList.add(p);
                 User u = cursor.next();
                 userHashMap.put(u.getId(), u);
-                System.out.println(u);
-                System.out.println("**************************************");
+//                System.out.println(u);
+//                System.out.println("**************************************");
 //                TimeUnit.MILLISECONDS.sleep(100);
             }
         } catch (Exception e) {

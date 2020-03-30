@@ -31,6 +31,7 @@ import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.bson.BsonDocument;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class User {
@@ -74,8 +75,14 @@ public class User {
         this.region = region;
     }
 
+    public String updateRegion() {
+        return (region != null) ? region : findRegion();
+    }
     public ObjectId getRegBy() {
-        regBy = ((_reg_by.size() != 0) ?  _reg_by.get(0)  :  null);
+        if(regBy == null) {
+            regBy = ((_reg_by.size() != 0) ?  _reg_by.get(0)  :  new ObjectId("000000000000000000000000"));
+            //regBy = (_reg_by.size() != 0) ?  _reg_by.get(0)  :  null;
+        }
         return regBy;
     }
     public void setRegBy(final ObjectId regBy) {
@@ -94,6 +101,20 @@ public class User {
     }
     public void set_reg_by(ArrayList<ObjectId> _reg_by){
         this._reg_by = _reg_by;
+    }
+
+    private String findRegion(){
+        //if(getRegBy() == null || getRegBy().equals(new ObjectId("000000000000000000000000"))) {
+        if(getRegBy() ==  null) {
+            return null;
+        }
+        String s = null;
+        try {
+            s = Main.users.get(regBy).getRegion();
+        } catch (Exception e) {
+            System.err.println("****User's registrant id did not found in the Map****");
+        }
+        return s;
     }
 
     //TODO implement the methods to access to competitions and tasks

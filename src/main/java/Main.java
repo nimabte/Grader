@@ -16,6 +16,7 @@ public class Main {
     private static final int WRONG_ANSWER = -1;
     private static final int NO_ANSWER = 0;
     //private static ResourceBundle myBundle = ResourceBundle.getBundle("grader");
+    public static HashMap<ObjectId, User> users;
 
     public static void main(String[] args) throws Exception {
         System.out.println("Hello\nthis is nima");
@@ -25,17 +26,22 @@ public class Main {
         mongoHandler.mongoClientInstance();
         //mongoHandler.documentInstance();
         mongoHandler.getCollections();
-        Queue<Submission> submissions = mongoHandler.readSubmissions();
-        HashMap<ObjectId, BsonDocument> problems = mongoHandler.readProblems();
-        System.out.println(problems.size()); //ok
+        //Queue<Submission> submissions = mongoHandler.readSubmissions();
+       // HashMap<ObjectId, BsonDocument> problems = mongoHandler.readProblems();
+       // System.out.println(problems.size()); //ok
         //System.out.println(problems.get(new ObjectId("5248895be4b04211cc6d798b")));
-        System.out.println(submissions.size()); //ok
+        //System.out.println(submissions.size()); //ok
+        users = mongoHandler.getUsers();
+        users.forEach((k, v) -> {
+            v.updateRegion();
+            //System.out.println(v.updateRegion());
+        });
 
 //        for(int i = 0; i<submissions.size();i++){
 //            System.out.println(submissions.get(i));
 //        }
 
-        checkSubmissions(problems, submissions);
+        //checkSubmissions(problems, submissions);
         System.out.println("press enter! \n ");
 //        System.in.read();
     }
@@ -144,12 +150,12 @@ public class Main {
 
     private static void userUpdate(ObjectId u_id, ObjectId p_id, int lt, int u_answer) {
         //TODO: Implement userUpdate:
-//        System.out.println("uID: " + u_id.toString() + "| pid: " + p_id.toString() + "| Answer given:" + correctAnswer + "\n");
-//        try {
-//            TimeUnit.MILLISECONDS.sleep(1);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
+        System.out.println("uID: " + u_id.toString() + "| pid: " + p_id.toString() + "| Answer given:" + u_answer + "\n");
+        try {
+            TimeUnit.MILLISECONDS.sleep(1);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
     }
 
