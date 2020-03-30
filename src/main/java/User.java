@@ -38,6 +38,8 @@ public class User {
     private String _role;
     private int grade;
     private String region;
+    private ArrayList<ObjectId> _reg_by;
+    private ObjectId regBy;
     private ArrayList<Event> events;
 
     public User(){
@@ -72,11 +74,26 @@ public class User {
         this.region = region;
     }
 
+    public ObjectId getRegBy() {
+        regBy = ((_reg_by.size() != 0) ?  _reg_by.get(0)  :  null);
+        return regBy;
+    }
+    public void setRegBy(final ObjectId regBy) {
+        this.regBy = regBy;
+    }
+
     public ArrayList<Event> getEvents(){
         return events;
     }
     public void setEvents(ArrayList<Event> events){
         this.events = events;
+    }
+
+    public ArrayList<ObjectId> get_reg_by(){
+        return _reg_by;
+    }
+    public void set_reg_by(ArrayList<ObjectId> _reg_by){
+        this._reg_by = _reg_by;
     }
 
     //TODO implement the methods to access to competitions and tasks
@@ -104,6 +121,12 @@ public class User {
         if (!getRegion().equals(user.getRegion()))  {
             return false;
         }
+        if (getRegBy() != null ? !getRegBy().equals(user.getRegBy()) : user.getRegBy() != null) {
+            return false;
+        }
+        if (get_reg_by() != null ? !get_reg_by().equals(user.get_reg_by()) : user.get_reg_by() != null) {
+            return false;
+        }
         if (getEvents() != null ? !getEvents().equals(user.getEvents()) : user.getEvents() != null) {
             return false;
         }
@@ -124,10 +147,17 @@ public class User {
     public String toString() {
         return "user{"
                 + "id='" + _id + "'"
-                + ", role =" + _role
-                + ", region =" + region
-                + ", grade =" + grade
-                + ", Event list =" + getEvents()
+                + ", role=" + _role
+                + ", region=" + region
+                + ", grade=" + grade
+                + ", registered_by=" + ((_reg_by.size() != 0) ? "'" + _reg_by.get(0) + "'" : null)
+                + ", Event list=" + events
                 + "}";
+    }
+
+    public User withNewId() {
+        setId(new ObjectId());
+        System.err.println("User with no _id found");
+        return this;
     }
 }

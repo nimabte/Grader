@@ -21,15 +21,11 @@ public class MongoHandlerTest {
         Logger mongoLogger = Logger.getLogger("org.mongodb.driver");
         mongoLogger.setLevel(Level.WARNING);
         MongoHandler mongoHandler = new MongoHandler();
-        //mongoHandler.documentInstance();
-        //Logger mongoLogger = Logger.getLogger("org.mongodb.driver");
-        //mongoLogger.setLevel(Level.WARNING);
-        //MongoHandler mongoHandler = new MongoHandler();
-        //mongoHandler.mongoClientInstance();
-        //mongoHandler.getCollections();
+        mongoHandler.mongoClientInstance();
+        mongoHandler.getCollections();
         //Queue<Submission> submissions = mongoHandler.readSubmissions();
         //HashMap<ObjectId, BsonDocument> problems = mongoHandler.readProblems();
-        //HashMap<ObjectId, User> users = mongoHandler.getUsers();
+        HashMap<ObjectId, User> users = mongoHandler.getUsers();
     }
     @Test
     public void testFunction() {

@@ -26,8 +26,7 @@ import org.bson.types.ObjectId;
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Sorts.orderBy;
 import static com.mongodb.client.model.Updates.set;
-import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
-import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
+import static org.bson.codecs.configuration.CodecRegistries.*;
 
 public class MongoHandler {
     private MongoClient mongoClient;
@@ -38,16 +37,21 @@ public class MongoHandler {
     private Bson bson;
     private CodecRegistry pojoCodecRegistry;
     private CodecRegistry codecRegistry;
-    MongoCollection<Submission> submissionCollection;
-    MongoCollection<Problem> problemCollection;
-    MongoCollection<User> userCollection;
+    private MongoCollection<Submission> submissionCollection;
+    private MongoCollection<Problem> problemCollection;
+    private CodecRegistry codecRegistryUser;
+    private MongoCollection<User> userCollection;
 
     public static int testFunction(){
         return 0;
     }
     void mongoClientInstance() {
         ConnectionString connectionString = new ConnectionString(uri);
-
+        // establish the use of our new custom codec
+        UserCodec userCodec = new UserCodec();
+        // create a codec registry with this codec
+        codecRegistryUser =
+                fromRegistries(MongoClientSettings.getDefaultCodecRegistry(), fromCodecs(userCodec));
         // create codec registry for POJOs
          pojoCodecRegistry = fromProviders(PojoCodecProvider.builder().automatic(true).build());
          codecRegistry = fromRegistries(MongoClientSettings.getDefaultCodecRegistry(), pojoCodecRegistry);
@@ -132,16 +136,16 @@ public class MongoHandler {
         database = mongoClient.getDatabase("bebras");
         submissionCollection =  database.getCollection("bebras17-3-4", Submission.class);
         problemCollection =  database.getCollection("problems", Problem.class);
-        userCollection =  database.getCollection("users", User.class);
+        userCollection =  database.getCollection("users", User.class).withCodecRegistry(codecRegistryUser);
         //Consumer<User> userConsumer = new Consumer<User>;
-        User u =
-                userCollection
-                .find()
-                        // this feels much more declarative
-                        .projection(fields(include("_id", "u", "st", "a")))
-                        .iterator()
-                        .tryNext();
-        System.out.println(u);
+//        User u =
+//                userCollection
+//                .find()
+//                        // this feels much more declarative
+//                        .projection(fields(include("_id", "u", "st", "a")))
+//                        .iterator()
+//                        .tryNext();
+//        System.out.println(u);
     }
 
     Queue<Submission> readSubmissions(){
@@ -221,10 +225,8 @@ public class MongoHandler {
 //                problemList.add(p);
                 User u = cursor.next();
                 userHashMap.put(u.getId(), u);
-//                System.out.println(problemHashMap.get(p.getId()));
-//                System.out.println("\n-----\n");
-//                System.out.println(p);
-//                System.out.println("\n **************************************\n");
+                System.out.println(u);
+                System.out.println("**************************************");
 //                TimeUnit.MILLISECONDS.sleep(100);
             }
         } catch (Exception e) {
