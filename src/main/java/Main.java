@@ -12,6 +12,8 @@ import java.util.logging.Logger;
 
 public class Main {
     public static HashMap<ObjectId, User> users;
+    public static HashMap<ObjectId, User> c_participants;
+    public static ArrayList<ObjectId> grade3_list;
     //..................................
     private static final boolean DEBUG = true;
     private static final String BEBRAS = "bebras";
@@ -47,14 +49,11 @@ public class Main {
             //System.out.println(submissions.get(i));
         //}
         users = mongoHandler.getUsers();
-        users.forEach((k, v) -> {
-            Event event = new Event(eventId, eventTitle);
-            Competition competition_1 = new Competition(competitionId, competitionTitle);
-            event.addCompetition(competition_1);
-            v.addEvent(event);
-            v.updateRegion();
-            System.out.println(v.getRegion());
-        });
+        c_participants = new HashMap<>();
+        // Remove SCHOOL_ORG users from map
+//        users.entrySet()
+//                .removeIf(
+//                        entry -> (entry.getValue().getRole().equals("SCHOOL_ORG")));
         checkSubmissions(problems, submissions);
 //        users.forEach((k, v) -> {
 //            HashMap<ObjectId, int[]> t;
@@ -181,7 +180,16 @@ public class Main {
             return;
         }
         try {
-            u.getCompetition(competitionId).addTask(p_id, lt, mark);
+            if(u.getCompetition(competitionId) == null) {
+                u.updateRegion();
+                Event event = new Event(eventId, eventTitle);
+                Competition competition = new Competition(competitionId, competitionTitle);
+                competition.addTask(p_id, lt, mark);
+                event.addCompetition(competition);
+                u.addEvent(event);
+                c_participants.put(u.getId(), u);
+            }else
+                u.getCompetition(competitionId).addTask(p_id, lt, mark);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -194,6 +202,6 @@ public class Main {
 
     }
 
-    
+
 
 }

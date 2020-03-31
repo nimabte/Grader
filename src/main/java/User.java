@@ -115,7 +115,8 @@ public class User {
     public Competition getCompetition(ObjectId competitionId){
         try {
             if(events.size() == 0){
-                throw new Exception("****User's event List is empty!****");
+                //throw new Exception("****User's event List is empty!****");
+                return null;
             }
             return events.get(events.size() - 1).getCompetition(competitionId);
         } catch (Exception e) {
