@@ -44,7 +44,7 @@ public class User {
     private ArrayList<Event> events;
 
     public User(){
-        events = new ArrayList<Event>();
+        //events = new ArrayList<Event>();
     }
     public User(Event event, Competition competition){
         events = new ArrayList<Event>();
@@ -105,12 +105,23 @@ public class User {
     public void addCompetition(Competition c){
         try {
             if(events.size() == 0){
-                throw new Exception("User's event List is empty!!");
+                throw new Exception("****User's event List is empty!****");
             }
             events.get(events.size() - 1).addCompetition(c);
         } catch (Exception e) {
             System.err.println(e.getLocalizedMessage());
         }
+    }
+    public Competition getCompetition(ObjectId competitionId){
+        try {
+            if(events.size() == 0){
+                throw new Exception("****User's event List is empty!****");
+            }
+            return events.get(events.size() - 1).getCompetition(competitionId);
+        } catch (Exception e) {
+            System.err.println(e.getLocalizedMessage());
+        }
+        return null;
     }
 
     public ArrayList<ObjectId> get_reg_by(){

@@ -12,7 +12,7 @@ public class Competition {
     private int score; //the overall performance of the participant in this competition.
     private int rank_in_org; //rank in the organization
     private int rank_in_reg; //rank in the region
-    private HashMap<ObjectId, Integer> tasks; // to store the score of the participant for each task (task = evaluated answer to the problem with the same p-id)
+    private HashMap<ObjectId, int[]> tasks; // to store the score of the participant for each task (task = evaluated answer to the problem with the same p-id)
 
 
     public Competition(){
@@ -58,20 +58,38 @@ public class Competition {
         this.rank_in_reg = rank_in_reg;
     }
 
-    public HashMap<ObjectId, Integer> getTasks(){
+    public HashMap<ObjectId, int[]> getTasks(){
         return tasks;
     }
-    public void setTasks(HashMap<ObjectId, Integer> tasks){
+    public void setTasks(HashMap<ObjectId, int[]> tasks){
         this.tasks = tasks;
     }
 
     //returns the corresponding answer of user OR NULL if it does not exist/
-    public int getTask(ObjectId id) {
+    public int[] getTask(ObjectId id) {
         return tasks.get(_id);
     }
+    public int getTaskLt(ObjectId id) {
+        return tasks.get(_id)[0];
+    }
+    public int getTaskAns(ObjectId id) {
+        return tasks.get(_id)[1];
+    }
 
-    public void addTask(ObjectId p_id, int u_answer) {
-        tasks.put(p_id, u_answer);
+    public void addTask(ObjectId p_id, int lt, int u_answer) {
+        int[] ans = tasks.get(p_id);
+        if(ans != null){
+            //if the saved answer is newer do nothing!
+            if(ans[0]>=lt)
+                return;
+            ans[0]=lt;
+            ans[1]=u_answer;
+            return;
+        }
+        ans = new int[2];
+        ans[0]=lt;
+        ans[1]=u_answer;
+        tasks.put(p_id, ans);
     }
 
     //returns a list of task ids in this competition.
