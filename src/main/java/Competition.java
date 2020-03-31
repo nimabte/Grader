@@ -80,20 +80,27 @@ public class Competition {
         return tasks.get(_id)[1];
     }
 
-    public void addTask(ObjectId p_id, int lt, int u_answer) {
+    public void addTask(ObjectId p_id, int lt, int mark) {
         int[] ans = tasks.get(p_id);
         if(ans != null){
             //if the saved answer is newer do nothing!
             if(ans[0]>=lt)
                 return;
+            updateScore(ans[1], mark);
             ans[0]=lt;
-            ans[1]=u_answer;
+            ans[1]=mark;
             return;
         }
         ans = new int[2];
         ans[0]=lt;
-        ans[1]=u_answer;
+        ans[1]=mark;
         tasks.put(p_id, ans);
+        updateScore(0, mark);
+    }
+
+    private void updateScore(int previousTaskMark, int newTaskMark) {
+        score -= previousTaskMark;
+        score += newTaskMark;
     }
 
     //returns a list of task ids in this competition.

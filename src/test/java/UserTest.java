@@ -22,9 +22,7 @@ public class UserTest {
     public void setup() throws Exception {
         eventId = new ObjectId();
         competitionId = new ObjectId();
-        event = new Event(eventId);
-        competition_1 = new Competition(competitionId);
-        event.addCompetition(competition_1);
+        event = new Event(eventId, "event");
         System.out.println("____________ EVENT INITIALIZING____________");
         System.out.println(event);
         Logger mongoLogger = Logger.getLogger("org.mongodb.driver");
@@ -34,14 +32,11 @@ public class UserTest {
         mongoHandler.getCollections();
         //Queue<Submission> submissions = mongoHandler.readSubmissions();
         //HashMap<ObjectId, BsonDocument> problems = mongoHandler.readProblems();
-        event = new Event(new ObjectId());
-        competition_1 = new Competition(new ObjectId());
         users = mongoHandler.getUsers();
     }
     @Test
     public void addCompetition() {
         users.forEach((k, v) -> {
-            //to check to empty error and initialization of even list in the empty constructor
             v.addCompetition(competition_1);
             //v.addEvent(event);
             //v.updateRegion();

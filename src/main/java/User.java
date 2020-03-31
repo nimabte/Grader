@@ -79,8 +79,8 @@ public class User {
         this.region = region;
     }
 
-    public String updateRegion() {
-        return (region != null) ? region : findRegion();
+    public void updateRegion() {
+        region = (region != null) ? region : findRegion();
     }
     public ObjectId getRegBy() {
         if(regBy == null) {

@@ -16,9 +16,9 @@ public class Main {
     private static final boolean DEBUG = true;
     private static final String BEBRAS = "bebras";
     private static final String BEBRAS_DYN = "bebras-dyn";
-    private static final int CORRECT_ANSWER = 1;
-    private static final int WRONG_ANSWER = -1;
-    private static final int NO_ANSWER = 0;
+    public static final int CORRECT_ANSWER = 3;
+    public static final int WRONG_ANSWER = -1;
+    public static final int NO_ANSWER = 0;
     //private static ResourceBundle myBundle = ResourceBundle.getBundle("grader");
     private static ObjectId eventId;
     private static String eventTitle;
@@ -53,7 +53,7 @@ public class Main {
             event.addCompetition(competition_1);
             v.addEvent(event);
             v.updateRegion();
-            //System.out.println(v.updateRegion());
+            System.out.println(v.getRegion());
         });
         checkSubmissions(problems, submissions);
 //        users.forEach((k, v) -> {
@@ -103,7 +103,7 @@ public class Main {
                             //int uAns = a.getInt32("a", new BsonInt32(-1)).getValue();
                             int uAns = a.getInt32("a").getValue();
                             if (uAns != -1) {
-                                //possible results of checking the task: -1 ,0, 1
+                                //possible results of checking the task: -1 ,0, 1 -> changed to 3 to ease up calculations
                                 // the grade coefficient will be applied when storing in the user result.
                                 if (uAns == right) {
                                     userUpdate(u_id, p_id, lt, CORRECT_ANSWER);
@@ -168,7 +168,7 @@ public class Main {
         return true;
     }
 
-    private static void userUpdate(ObjectId u_id, ObjectId p_id, int lt, int u_answer) {
+    private static void userUpdate(ObjectId u_id, ObjectId p_id, int lt, int mark) {
         User u;
         try {
             u = users.get(u_id);
@@ -181,11 +181,11 @@ public class Main {
             return;
         }
         try {
-            u.getCompetition(competitionId).addTask(p_id, lt, u_answer);
+            u.getCompetition(competitionId).addTask(p_id, lt, mark);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        //System.out.println("uID: " + u_id.toString() + "| pid: " + p_id.toString() + "| Answer given:" + u_answer + "\n");
+        //System.out.println("uID: " + u_id.toString() + "| pid: " + p_id.toString() + "| Answer given:" + mark + "\n");
 //        try {
 //            TimeUnit.MILLISECONDS.sleep(1);
 //        } catch (InterruptedException e) {
