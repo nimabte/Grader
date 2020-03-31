@@ -7,12 +7,14 @@ import java.util.List;
 
 public class Event {
     private ObjectId _id;
+    private String title;
     private HashMap<ObjectId, Competition> competitions;
 
     public Event(){
     }
-    public Event(ObjectId eventId){
+    public Event(ObjectId eventId, String title){
         _id = eventId;
+        this.title  = title;
         competitions = new HashMap<ObjectId, Competition>();
     }
 
@@ -21,6 +23,13 @@ public class Event {
     }
     public void setId(final ObjectId id) {
         this._id = id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+    public void setScore(final String title) {
+        this.title = title;
     }
 
     public HashMap<ObjectId, Competition> getCompetitions(){
@@ -62,6 +71,9 @@ public class Event {
         if (getId() != null ? !getId().equals(event.getId()) : event.getId() != null) {
             return false;
         }
+        if (!getTitle().equals(event.getTitle()))  {
+            return false;
+        }
         if (getCompetitionList() != null ? !getCompetitionList().equals(event.getCompetitionList()) : event.getCompetitionList() != null) {
             return false;
         }
@@ -71,6 +83,7 @@ public class Event {
     @Override
     public int hashCode() {
         int result = getId() != null ? getId().hashCode() : 0;
+        result = 31 * result + (getTitle() != null ? getTitle().hashCode() : 0);
         result = 31 * result + (getCompetitionList() != null ? getCompetitionList().hashCode() : 0);
         return result;
     }
@@ -79,6 +92,7 @@ public class Event {
     public String toString() {
         return "Event{"
                 + "id='" + _id + "'"
+                + ", title =" + title
                 + ", competitions list =" + getCompetitionList()
                 + "}";
     }

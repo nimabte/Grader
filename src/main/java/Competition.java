@@ -18,8 +18,12 @@ public class Competition {
     public Competition(){
 
     }
-    public Competition(ObjectId competitionId){
+    public Competition(ObjectId competitionId, String title){
         _id = competitionId;
+        this.title = title;
+        score = 0;
+        rank_in_org = 0;
+        rank_in_reg = 0;
         tasks = new HashMap<>();
     }
 

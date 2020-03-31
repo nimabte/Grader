@@ -21,11 +21,15 @@ public class Main {
     private static final int NO_ANSWER = 0;
     //private static ResourceBundle myBundle = ResourceBundle.getBundle("grader");
     private static ObjectId eventId;
+    private static String eventTitle;
     private static ObjectId competitionId;
+    private static String competitionTitle;
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args){
         eventId = new ObjectId();
+        eventTitle = "e_bebras_17";
         competitionId = new ObjectId();
+        competitionTitle = "c_bebras17_3-4";
         System.out.println("____________ INITIALIZING ____________");
         //................................
         Logger mongoLogger = Logger.getLogger("org.mongodb.driver");
@@ -44,8 +48,8 @@ public class Main {
         //}
         users = mongoHandler.getUsers();
         users.forEach((k, v) -> {
-            Event event = new Event(eventId);
-            Competition competition_1 = new Competition(competitionId);
+            Event event = new Event(eventId, eventTitle);
+            Competition competition_1 = new Competition(competitionId, competitionTitle);
             event.addCompetition(competition_1);
             v.addEvent(event);
             v.updateRegion();
