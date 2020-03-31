@@ -5,11 +5,14 @@ import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Main {
+    public static HashMap<ObjectId, User> users;
+    //..................................
     private static final boolean DEBUG = true;
     private static final String BEBRAS = "bebras";
     private static final String BEBRAS_DYN = "bebras-dyn";
@@ -17,16 +20,13 @@ public class Main {
     private static final int WRONG_ANSWER = -1;
     private static final int NO_ANSWER = 0;
     //private static ResourceBundle myBundle = ResourceBundle.getBundle("grader");
-    public static HashMap<ObjectId, User> users;
-    private static Event event;
-    private static Competition competition_1;
+    private static ObjectId eventId;
+    private static ObjectId competitionId;
 
     public static void main(String[] args) throws Exception {
-        event = new Event(new ObjectId());
-        competition_1 = new Competition(new ObjectId());
-        event.addCompetition(competition_1);
-        System.out.println("____________ EVENT INITIALIZING____________");
-        System.out.println(event);
+        eventId = new ObjectId();
+        competitionId = new ObjectId();
+        System.out.println("____________ INITIALIZING ____________");
         //................................
         Logger mongoLogger = Logger.getLogger("org.mongodb.driver");
         mongoLogger.setLevel(Level.WARNING);
@@ -44,11 +44,23 @@ public class Main {
         //}
         users = mongoHandler.getUsers();
         users.forEach((k, v) -> {
+            Event event = new Event(eventId);
+            Competition competition_1 = new Competition(competitionId);
+            event.addCompetition(competition_1);
             v.addEvent(event);
             v.updateRegion();
             //System.out.println(v.updateRegion());
         });
-         checkSubmissions(problems, submissions);
+        checkSubmissions(problems, submissions);
+//        users.forEach((k, v) -> {
+//            HashMap<ObjectId, int[]> t;
+//            t = v.getCompetition(competitionId).getTasks();
+//            t.forEach((key, val)->{
+//                System.out.print(key + "->" + val[0] + " , " + val[1] + " | ");
+//            });
+//            System.out.println();
+//        });
+        System.out.println("*********************** yeaaaaahhhhh ***********************************************************");
     }
 
     private static boolean checkSubmissions(HashMap<ObjectId, BsonDocument> problems, Queue<Submission> submissions) {
@@ -104,7 +116,8 @@ public class Main {
                         try {
                             uAns = a.getInt32("r").getValue();
                         } catch (Exception e) {
-                            System.err.println(e.getLocalizedMessage()+"\npid:" + p_id + ", u_id:"+ u_id + ", lt:"+ lt);
+                            e.printStackTrace();
+                            System.err.println("pid:" + p_id + ", u_id:"+ u_id + ", lt:"+ lt);
                             break;
                         }
 
@@ -152,23 +165,23 @@ public class Main {
     }
 
     private static void userUpdate(ObjectId u_id, ObjectId p_id, int lt, int u_answer) {
-        //TODO: Implement userUpdate:
         User u;
         try {
             u = users.get(u_id);
             if(u == null) {
                 //String msg = "User no found in Hashmap!";
-                throw new Exception("User no found in Hashmap!");
+                throw new Exception("User not found in Hashmap!");
             }
         } catch (Exception e) {
-            System.err.println(e.getLocalizedMessage());
+            e.printStackTrace();
             return;
         }
-        //u.getCompetition(competition_1.getId()).addTask(p_id, u_answer);
-
-
-        //.................................
-        System.out.println("uID: " + u_id.toString() + "| pid: " + p_id.toString() + "| Answer given:" + u_answer + "\n");
+        try {
+            u.getCompetition(competitionId).addTask(p_id, lt, u_answer);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        //System.out.println("uID: " + u_id.toString() + "| pid: " + p_id.toString() + "| Answer given:" + u_answer + "\n");
 //        try {
 //            TimeUnit.MILLISECONDS.sleep(1);
 //        } catch (InterruptedException e) {

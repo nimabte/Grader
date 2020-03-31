@@ -44,7 +44,7 @@ public class User {
     private ArrayList<Event> events;
 
     public User(){
-        //events = new ArrayList<Event>();
+        events = new ArrayList<Event>();
     }
     public User(Event event, Competition competition){
         events = new ArrayList<Event>();
@@ -109,7 +109,7 @@ public class User {
             }
             events.get(events.size() - 1).addCompetition(c);
         } catch (Exception e) {
-            System.err.println(e.getLocalizedMessage());
+            e.printStackTrace();
         }
     }
     public Competition getCompetition(ObjectId competitionId){
@@ -119,7 +119,7 @@ public class User {
             }
             return events.get(events.size() - 1).getCompetition(competitionId);
         } catch (Exception e) {
-            System.err.println(e.getLocalizedMessage());
+            e.printStackTrace();
         }
         return null;
     }
@@ -140,6 +140,7 @@ public class User {
         try {
             s = Main.users.get(regBy).getRegion();
         } catch (Exception e) {
+            e.printStackTrace();
             System.err.println("****User's registrant id did not found in the Map****");
         }
         return s;

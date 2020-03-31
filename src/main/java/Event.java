@@ -32,7 +32,7 @@ public class Event {
 
     //returns the corresponding competition OR NULL if it does not exist/
     public Competition getCompetition(ObjectId id) {
-        return competitions.get(_id);
+        return competitions.get(id);
     }
 
     //returns a list of competition ids in this event.
