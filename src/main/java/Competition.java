@@ -1,5 +1,4 @@
 /* this class is to save a competition in a user profile*/
-import org.bson.BsonDocument;
 import org.bson.types.ObjectId;
 
 import java.util.ArrayList;
@@ -10,7 +9,7 @@ public class Competition {
     private ObjectId _id;
     private String title;
     private int score; //the overall performance of the participant in this competition.
-    private int rank_in_org; //rank in the organization
+    private int rank_in_grade; //rank in the organization
     private int rank_in_reg; //rank in the region
     private HashMap<ObjectId, int[]> tasks; // to store the score of the participant for each task (task = evaluated answer to the problem with the same p-id)
 
@@ -22,7 +21,7 @@ public class Competition {
         _id = competitionId;
         this.title = title;
         score = 0;
-        rank_in_org = 0;
+        rank_in_grade = 0;
         rank_in_reg = 0;
         tasks = new HashMap<>();
     }
@@ -48,11 +47,11 @@ public class Competition {
         this.score = score;
     }
 
-    public int getRank_in_org() {
-        return rank_in_org;
+    public int getRank_in_grade() {
+        return rank_in_grade;
     }
-    public void setRank_in_org(final int rank_in_org) {
-        this.rank_in_org = rank_in_org;
+    public void setRank_in_grade(final int rank_in_grade) {
+        this.rank_in_grade = rank_in_grade;
     }
 
     public int getRank_in_reg() {
@@ -128,7 +127,7 @@ public class Competition {
         if (getScore() != competition.getScore())  {
             return false;
         }
-        if (getRank_in_org() != competition.getRank_in_org())  {
+        if (getRank_in_grade() != competition.getRank_in_grade())  {
             return false;
         }
         if (getRank_in_reg() != competition.getRank_in_reg())  {
@@ -145,7 +144,7 @@ public class Competition {
         int result = getId() != null ? getId().hashCode() : 0;
         result = 31 * result + (getTitle() != null ? getTitle().hashCode() : 0);
         result = 31 * result + getScore();
-        result = 31 * result + getRank_in_org();
+        result = 31 * result + getRank_in_grade();
         return result;
     }
 
@@ -155,7 +154,7 @@ public class Competition {
                 + "c_id='" + _id + "'"
                 + ", title =" + title
                 + ", score =" + score
-                + ", rank in organization =" + rank_in_org
+                + ", rank in grade =" + rank_in_grade
                 + ", rank in the region =" + rank_in_reg
                 + ", list of tasks =" + getTaskList()
                 + "}";

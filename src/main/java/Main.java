@@ -1,19 +1,18 @@
 import org.bson.BsonDocument;
-import org.bson.BsonInt32;
 import org.bson.BsonString;
-import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Main {
     public static HashMap<ObjectId, User> users;
     public static HashMap<ObjectId, User> c_participants;
-    public static ArrayList<ObjectId> grade3_list;
+    public static HashMap<ObjectId, User> mapGrade_3;
+    public static HashMap<ObjectId, User> mapGrade_4;
+    public static ArrayList<ObjectId> listGrade_3;
+    public static ArrayList<ObjectId> listGrade_4;
     //..................................
     private static final boolean DEBUG = true;
     private static final String BEBRAS = "bebras";
@@ -50,6 +49,10 @@ public class Main {
         //}
         users = mongoHandler.getUsers();
         c_participants = new HashMap<>();
+        mapGrade_3 = new HashMap<>();
+        mapGrade_4 = new HashMap<>();
+        listGrade_3 = new ArrayList<>();
+        listGrade_4 = new ArrayList<>();
         // Remove SCHOOL_ORG users from map
 //        users.entrySet()
 //                .removeIf(
@@ -154,12 +157,12 @@ public class Main {
                                 }
                                 break;
                             default:
-                                throw new IllegalStateException("Unexpected value: " + type);
+                                throw new IllegalStateException("Unexpected value for uAns: " + uAns);
                         }
 
                         break;
                     default:
-                        throw new IllegalStateException("Unexpected value: " + type);
+                        throw new IllegalStateException("Unexpected value fpr problem type: " + type);
                 }
             }
 
@@ -187,9 +190,27 @@ public class Main {
                 competition.addTask(p_id, lt, mark);
                 event.addCompetition(competition);
                 u.addEvent(event);
-                c_participants.put(u.getId(), u);
-            }else
+                //c_participants.put(u.getId(), u);
+                switch(u.getGrade()) {
+                    case 4:
+                        mapGrade_4.put(u.getId(), u);
+                        listGrade_4.add(u.getId());
+                        u.getCompetition(competitionId).setRank_in_grade(listGrade_4.size());
+                        gradeRankUpdate(u, true);
+                        break;
+                    case 3:
+                        mapGrade_3.put(u.getId(), u);
+                        listGrade_3.add(u.getId());
+                        break;
+                    default:
+                        throw new IllegalStateException("Unexpected value for participant's grade: " + u.getGrade());
+                }
+            }else {
                 u.getCompetition(competitionId).addTask(p_id, lt, mark);
+                if(u.getGrade() == 4) {
+                    gradeRankUpdate(u, false);
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -201,6 +222,61 @@ public class Main {
 //        }
 
     }
+
+    private static void gradeRankUpdate(User u, boolean firstTime) {
+        int score = u.getCompetition(competitionId).getScore();;
+        // i = user's rank - 1; that is his place in the list
+        int i = u.getCompetition(competitionId).getRank_in_grade() - 1;
+        User u_2;
+
+        if (firstTime) {
+            if (i > 0) {
+                u_2 = mapGrade_4.get(listGrade_4.get(i - 1));
+                while (i != 0 && score > u_2.getCompetition(competitionId).getScore()) {
+                    listGrade_4.set(i, u_2.getId());
+                    u_2.getCompetition(competitionId).setRank_in_grade(i + 1);
+                    i--;
+                    if (i != 0) {
+                        u_2 = mapGrade_4.get(listGrade_4.get(i - 1));
+                    }
+                }
+                //listGrade_4.set(i, u.getId());
+                //u.getCompetition(competitionId).setRank_in_grade(i + 1);
+            }
+        }else{
+            if (i > 0) {
+                u_2 = mapGrade_4.get(listGrade_4.get(i - 1));
+                if(score > u_2.getCompetition(competitionId).getScore()) {
+                    do{
+                        listGrade_4.set(i, u_2.getId());
+                        u_2.getCompetition(competitionId).setRank_in_grade(i + 1);
+                        i--;
+                        if (i != 0) {
+                            u_2 = mapGrade_4.get(listGrade_4.get(i - 1));
+                        }
+                    } while (i != 0 && score > u_2.getCompetition(competitionId).getScore()) ;
+                    listGrade_4.set(i, u.getId());
+                    u.getCompetition(competitionId).setRank_in_grade(i + 1);
+                    return;
+                }
+            }
+            if (i < listGrade_4.size() - 1) {
+                u_2 = mapGrade_4.get(listGrade_4.get(i + 1));
+                while (i < listGrade_4.size() - 1 && score < u_2.getCompetition(competitionId).getScore()) {
+                    listGrade_4.set(i, u_2.getId());
+                    u_2.getCompetition(competitionId).setRank_in_grade(i + 1);
+                    i++;
+                    if (i < listGrade_4.size() - 1) {
+                        u_2 = mapGrade_4.get(listGrade_4.get(i + 1));
+                    }
+                }
+            }
+        }
+        listGrade_4.set(i, u.getId());
+        u.getCompetition(competitionId).setRank_in_grade(i + 1);
+    }
+
+    private static void updateListGrad_4(){};
 
 
 
