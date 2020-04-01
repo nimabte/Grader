@@ -3,6 +3,7 @@ import org.bson.BsonString;
 import org.bson.types.ObjectId;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -11,6 +12,8 @@ public class Main {
     public static HashMap<ObjectId, User> c_participants;
     public static HashMap<ObjectId, User> mapGrade_3;
     public static HashMap<ObjectId, User> mapGrade_4;
+    public static HashMap<String, Integer> mapRegion_4;
+    public static HashMap<String, Integer> mapRegion_3;
     public static ArrayList<ObjectId> listGrade_3;
     public static ArrayList<ObjectId> listGrade_4;
     //..................................
@@ -51,6 +54,8 @@ public class Main {
         c_participants = new HashMap<>();
         mapGrade_3 = new HashMap<>();
         mapGrade_4 = new HashMap<>();
+        mapRegion_3 = new HashMap<>();
+        mapRegion_4 = new HashMap<>();
         listGrade_3 = new ArrayList<>();
         listGrade_4 = new ArrayList<>();
         // Remove SCHOOL_ORG users from map
@@ -66,6 +71,34 @@ public class Main {
 //            });
 //            System.out.println();
 //        });
+        // test of the accuracy of the regional sectioning
+//        AtomicInteger count = new AtomicInteger();
+//        mapRegion_3.forEach((k, v) -> {
+//            count.addAndGet(v);
+//            });
+//        System.out.println("for papRegion_3:" + count);
+//        count.set(0);
+//        mapRegion_4.forEach((k, v) -> {
+//            count.addAndGet(v);
+//        });
+//        System.out.println("for papRegion_4:" + count);
+        User u;
+        int score;
+        int gR;
+        int rR;
+        String region;
+        int c =0;
+        for(int i =0; i<105; i++){
+            u = mapGrade_4.get(listGrade_4.get(i));
+            score = u.getCompetition(competitionId).getScore();
+            gR = u.getCompetition(competitionId).getRank_in_grade();
+            rR = u.getCompetition(competitionId).getRank_in_reg();
+            region = u.getRegion();
+            if(region.equals("NVS"))
+                c++;
+            System.out.println("Student_ID" + u.getId() + "| Score:" + score + " | Grade_Rank:" + gR + " | Region_Rank:" + rR + " | Region:" + region);
+        }
+        System.out.println("Count:" + c);
         System.out.println("*********************** yeaaaaahhhhh ***********************************************************");
     }
 
@@ -190,19 +223,46 @@ public class Main {
                 competition.addTask(p_id, lt, mark);
                 event.addCompetition(competition);
                 u.addEvent(event);
+                String region;
+                int regionLastRank;
                 //c_participants.put(u.getId(), u);
                 switch(u.getGrade()) {
                     case 4:
+                        //update regional rank
+                        region = u.getRegion();
+                        regionLastRank = mapRegion_4.getOrDefault(region, -1);
+                        if(regionLastRank == -1){
+                            mapRegion_4.put(region, 1);
+                            u.getCompetition(competitionId).setRank_in_reg(1);
+                        }else{
+                            regionLastRank ++;
+                            mapRegion_4.put(region, regionLastRank);
+                            u.getCompetition(competitionId).setRank_in_reg(regionLastRank);
+                        }
+                        //Update grade rank
                         mapGrade_4.put(u.getId(), u);
                         listGrade_4.add(u.getId());
                         u.getCompetition(competitionId).setRank_in_grade(listGrade_4.size());
-                        gradeRankUpdate(u, listGrade_4, mapGrade_4, true);
+                        gradeRankUpdate(u, listGrade_4, mapGrade_4, region, mapRegion_4, true);
+
                         break;
                     case 3:
+                        //update regional rank
+                        region = u.getRegion();
+                        regionLastRank = mapRegion_3.getOrDefault(region, -1);
+                        if(regionLastRank == -1){
+                            mapRegion_3.put(region, 1);
+                            u.getCompetition(competitionId).setRank_in_reg(1);
+                        }else{
+                            regionLastRank ++;
+                            mapRegion_3.put(region, regionLastRank);
+                            u.getCompetition(competitionId).setRank_in_reg(regionLastRank);
+                        }
+                        //Update grade rank
                         mapGrade_3.put(u.getId(), u);
                         listGrade_3.add(u.getId());
                         u.getCompetition(competitionId).setRank_in_grade(listGrade_3.size());
-                        gradeRankUpdate(u, listGrade_3, mapGrade_3, true);
+                        gradeRankUpdate(u, listGrade_3, mapGrade_3, region, mapRegion_3, true);
                         break;
                     default:
                         throw new IllegalStateException("Unexpected value for participant's grade: " + u.getGrade());
@@ -210,10 +270,10 @@ public class Main {
             }else {
                 u.getCompetition(competitionId).addTask(p_id, lt, mark);
                 if(u.getGrade() == 4) {
-                    gradeRankUpdate(u, listGrade_4, mapGrade_4, false);
+                    gradeRankUpdate(u, listGrade_4, mapGrade_4, u.getRegion(), mapRegion_4, false);
                 }
                 if(u.getGrade() == 3) {
-                    gradeRankUpdate(u, listGrade_3, mapGrade_3, false);
+                    gradeRankUpdate(u, listGrade_3, mapGrade_3, u.getRegion(), mapRegion_3, false);
                 }
             }
         } catch (Exception e) {
@@ -228,10 +288,13 @@ public class Main {
 
     }
 
-    private static void gradeRankUpdate(User u, ArrayList listGrade, HashMap<ObjectId, User> mapGrade, boolean firstTime) {
-        int score = u.getCompetition(competitionId).getScore();;
+    private static void gradeRankUpdate(
+            User u, ArrayList listGrade, HashMap<ObjectId, User> mapGrade,
+            String region,HashMap<String, Integer> mapRegion,  boolean firstTime) {
+        int score = u.getCompetition(competitionId).getScore();
         // i = user's rank - 1; that is his place in the list
         int i = u.getCompetition(competitionId).getRank_in_grade() - 1;
+        int regionRank = u.getCompetition(competitionId).getRank_in_reg();
         User u_2;
 
         if (firstTime) {
@@ -240,6 +303,10 @@ public class Main {
                 while (i != 0 && score > u_2.getCompetition(competitionId).getScore()) {
                     listGrade.set(i, u_2.getId());
                     u_2.getCompetition(competitionId).setRank_in_grade(i + 1);
+                    if(u_2.getRegion().equals(region)){
+                        u_2.getCompetition(competitionId).updateRank_in_reg(1);
+                        regionRank --;
+                    }
                     i--;
                     if (i != 0) {
                         u_2 = mapGrade.get(listGrade.get(i - 1));
@@ -255,6 +322,10 @@ public class Main {
                     do{
                         listGrade.set(i, u_2.getId());
                         u_2.getCompetition(competitionId).setRank_in_grade(i + 1);
+                        if(u_2.getRegion().equals(region)){
+                            u_2.getCompetition(competitionId).updateRank_in_reg(1);
+                            regionRank --;
+                        }
                         i--;
                         if (i != 0) {
                             u_2 = mapGrade.get(listGrade.get(i - 1));
@@ -262,6 +333,7 @@ public class Main {
                     } while (i != 0 && score > u_2.getCompetition(competitionId).getScore()) ;
                     listGrade.set(i, u.getId());
                     u.getCompetition(competitionId).setRank_in_grade(i + 1);
+                    u.getCompetition(competitionId).setRank_in_reg(regionRank);
                     return;
                 }
             }
@@ -270,6 +342,10 @@ public class Main {
                 while (i < listGrade.size() - 1 && score < u_2.getCompetition(competitionId).getScore()) {
                     listGrade.set(i, u_2.getId());
                     u_2.getCompetition(competitionId).setRank_in_grade(i + 1);
+                    if(u_2.getRegion().equals(region)){
+                        u_2.getCompetition(competitionId).updateRank_in_reg(-1);
+                        regionRank ++;
+                    }
                     i++;
                     if (i < listGrade.size() - 1) {
                         u_2 = mapGrade.get(listGrade.get(i + 1));
@@ -279,6 +355,7 @@ public class Main {
         }
         listGrade.set(i, u.getId());
         u.getCompetition(competitionId).setRank_in_grade(i + 1);
+        u.getCompetition(competitionId).setRank_in_reg(regionRank);
     }
 
     private static void updateListGrad_4(){};

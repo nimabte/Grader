@@ -60,6 +60,9 @@ public class Competition {
     public void setRank_in_reg(final int rank_in_reg) {
         this.rank_in_reg = rank_in_reg;
     }
+    public void updateRank_in_reg(final int value){
+        rank_in_reg += value;
+    }
 
     public HashMap<ObjectId, int[]> getTasks(){
         return tasks;
