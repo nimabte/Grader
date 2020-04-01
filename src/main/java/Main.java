@@ -196,11 +196,13 @@ public class Main {
                         mapGrade_4.put(u.getId(), u);
                         listGrade_4.add(u.getId());
                         u.getCompetition(competitionId).setRank_in_grade(listGrade_4.size());
-                        gradeRankUpdate(u, true);
+                        gradeRankUpdate(u, listGrade_4, mapGrade_4, true);
                         break;
                     case 3:
                         mapGrade_3.put(u.getId(), u);
                         listGrade_3.add(u.getId());
+                        u.getCompetition(competitionId).setRank_in_grade(listGrade_3.size());
+                        gradeRankUpdate(u, listGrade_3, mapGrade_3, true);
                         break;
                     default:
                         throw new IllegalStateException("Unexpected value for participant's grade: " + u.getGrade());
@@ -208,7 +210,10 @@ public class Main {
             }else {
                 u.getCompetition(competitionId).addTask(p_id, lt, mark);
                 if(u.getGrade() == 4) {
-                    gradeRankUpdate(u, false);
+                    gradeRankUpdate(u, listGrade_4, mapGrade_4, false);
+                }
+                if(u.getGrade() == 3) {
+                    gradeRankUpdate(u, listGrade_3, mapGrade_3, false);
                 }
             }
         } catch (Exception e) {
@@ -223,7 +228,7 @@ public class Main {
 
     }
 
-    private static void gradeRankUpdate(User u, boolean firstTime) {
+    private static void gradeRankUpdate(User u, ArrayList listGrade, HashMap<ObjectId, User> mapGrade, boolean firstTime) {
         int score = u.getCompetition(competitionId).getScore();;
         // i = user's rank - 1; that is his place in the list
         int i = u.getCompetition(competitionId).getRank_in_grade() - 1;
@@ -231,13 +236,13 @@ public class Main {
 
         if (firstTime) {
             if (i > 0) {
-                u_2 = mapGrade_4.get(listGrade_4.get(i - 1));
+                u_2 = mapGrade.get(listGrade.get(i - 1));
                 while (i != 0 && score > u_2.getCompetition(competitionId).getScore()) {
-                    listGrade_4.set(i, u_2.getId());
+                    listGrade.set(i, u_2.getId());
                     u_2.getCompetition(competitionId).setRank_in_grade(i + 1);
                     i--;
                     if (i != 0) {
-                        u_2 = mapGrade_4.get(listGrade_4.get(i - 1));
+                        u_2 = mapGrade.get(listGrade.get(i - 1));
                     }
                 }
                 //listGrade_4.set(i, u.getId());
@@ -245,34 +250,34 @@ public class Main {
             }
         }else{
             if (i > 0) {
-                u_2 = mapGrade_4.get(listGrade_4.get(i - 1));
+                u_2 = mapGrade.get(listGrade.get(i - 1));
                 if(score > u_2.getCompetition(competitionId).getScore()) {
                     do{
-                        listGrade_4.set(i, u_2.getId());
+                        listGrade.set(i, u_2.getId());
                         u_2.getCompetition(competitionId).setRank_in_grade(i + 1);
                         i--;
                         if (i != 0) {
-                            u_2 = mapGrade_4.get(listGrade_4.get(i - 1));
+                            u_2 = mapGrade.get(listGrade.get(i - 1));
                         }
                     } while (i != 0 && score > u_2.getCompetition(competitionId).getScore()) ;
-                    listGrade_4.set(i, u.getId());
+                    listGrade.set(i, u.getId());
                     u.getCompetition(competitionId).setRank_in_grade(i + 1);
                     return;
                 }
             }
-            if (i < listGrade_4.size() - 1) {
-                u_2 = mapGrade_4.get(listGrade_4.get(i + 1));
-                while (i < listGrade_4.size() - 1 && score < u_2.getCompetition(competitionId).getScore()) {
-                    listGrade_4.set(i, u_2.getId());
+            if (i < listGrade.size() - 1) {
+                u_2 = mapGrade.get(listGrade.get(i + 1));
+                while (i < listGrade.size() - 1 && score < u_2.getCompetition(competitionId).getScore()) {
+                    listGrade.set(i, u_2.getId());
                     u_2.getCompetition(competitionId).setRank_in_grade(i + 1);
                     i++;
-                    if (i < listGrade_4.size() - 1) {
-                        u_2 = mapGrade_4.get(listGrade_4.get(i + 1));
+                    if (i < listGrade.size() - 1) {
+                        u_2 = mapGrade.get(listGrade.get(i + 1));
                     }
                 }
             }
         }
-        listGrade_4.set(i, u.getId());
+        listGrade.set(i, u.getId());
         u.getCompetition(competitionId).setRank_in_grade(i + 1);
     }
 
