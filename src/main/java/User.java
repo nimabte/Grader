@@ -27,12 +27,9 @@ Organizer JSON form:
 }
  */
 
-import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
-import org.bson.BsonDocument;
+
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 public class User {
     private ObjectId _id;
@@ -42,15 +39,21 @@ public class User {
     private ArrayList<ObjectId> _reg_by;
     private ObjectId regBy;
     private ArrayList<Event> events;
+    //....................
+    private int gradePosition;
+    private int regionPosition;
 
     public User(){
         events = new ArrayList<Event>();
+        gradePosition = 0;
+        regionPosition = 0;
     }
     public User(Event event, Competition competition){
         events = new ArrayList<Event>();
         events.add(event);
         events.get(0).addCompetition(competition);
     }
+
     public ObjectId getId() {
         return _id;
     }
@@ -146,8 +149,25 @@ public class User {
         }
         return s;
     }
+    public int getGradePosition() {
+        return gradePosition;
+    }
+    public void setGradePosition(int gradePosition) {
+        this.gradePosition = gradePosition;
+    }
+    public void updateGradePosition(final int value){
+        gradePosition += value;
+    }
 
-    //TODO implement the methods to access to competitions and tasks
+    public int getRegionPosition() {
+        return regionPosition;
+    }
+    public void setRegionPosition(int regionPosition) {
+        this.regionPosition = regionPosition;
+    }
+    public void updateRegionPosition(final int value){
+        regionPosition += value;
+    }
 
     @Override
     public boolean equals(final Object o) {

@@ -53,6 +53,9 @@ public class Competition {
     public void setRank_in_grade(final int rank_in_grade) {
         this.rank_in_grade = rank_in_grade;
     }
+    public void updateRank_in_grade(final int value){
+        rank_in_grade += value;
+    }
 
     public int getRank_in_reg() {
         return rank_in_reg;
