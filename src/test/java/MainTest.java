@@ -100,9 +100,10 @@ public class MainTest {
             rR = u.getCompetition(competitionId).getRank_in_reg();
             rP = u.getRegionPosition();
             region = u.getRegion();
-            if(region.equals("NVS"))
+            if(region.equals("NVS")) {
                 c++;
-            System.out.println("Student_ID: " + u.getId() + " | Score:" + score + " | Grade_Rank:" + gR + " | Grade_Position:" + gP + " | Region_Rank:" + rR  + " | Region_Position: " + rP + " | Region:" + region);
+                System.out.println("Student_ID: " + u.getId() + " | Score:" + score + " | Grade_Rank:" + gR + " | Grade_Position:" + gP + " | Region_Rank:" + rR + " | Region_Position: " + rP + " | Region:" + region);
+            }
         }
         System.out.println("Count:" + c);
         System.out.println("*********************** yeaaaaahhhhh ***********************************************************");
@@ -224,8 +225,10 @@ public class MainTest {
             if(u.getCompetition(competitionId) == null) {
                 u.updateRegion();
                 //#DEBUG:
-                if(!u.getRegion().equals("NVS") | u.getGrade() != 4)
-                    throw new Exception("it is alright");
+                if(!u.getRegion().equals("NVS")| u.getGrade() != 4) {
+                    if (!u.getRegion().equals("SPB"))
+                        throw new Exception("it is alright");
+                }
                 //.................................................
                 Event event = new Event(eventId, eventTitle);
                 Competition competition = new Competition(competitionId, competitionTitle);
@@ -249,7 +252,7 @@ public class MainTest {
                         }else{
                             regionLastRank ++;
                             Main.mapRegion_4.put(region, regionLastRank);
-                            u.getCompetition(competitionId).setRank_in_reg(regionLastRank);
+                            u.getCompetition(competitionId).setRank_in_reg(regionLastRank);//todo problem here
                             u.setRegionPosition(regionLastRank);
                         }
                         //Update ranks
@@ -323,7 +326,7 @@ public class MainTest {
         // i = current pointer in the list(user's at first)
         int i = u.getGradePosition() - 1;
         int gradeRank = u.getCompetition(competitionId).getRank_in_grade();
-        int regionRank = u.getRegionPosition();
+        int regionRank = u.getCompetition(competitionId).getRank_in_reg();
         int rankBuffer = 0;
         User u_2;
         //............................................
@@ -386,8 +389,9 @@ public class MainTest {
                 if (u_2.getRegion().equals(region)) {
                     u_2.getCompetition(competitionId).updateRank_in_reg(1);
                     u_2.updateRegionPosition(1);
+                    u.getCompetition(competitionId).updateRank_in_reg(-1);
                     u.updateRegionPosition(-1);
-                    regionRank--;
+                    //regionRank--;
                 }
                 // decreasing the pointer (grade position)
                 i--;
@@ -403,7 +407,7 @@ public class MainTest {
                     listGrade.set(i, u.getId());
                     u.setGradePosition(i + 1);
                     //no need to set rank in grade!
-                    u.getCompetition(competitionId).setRank_in_reg(regionRank);
+                    //u.getCompetition(competitionId).setRank_in_reg(regionRank);
                     //u.setRegionPosition(regionRank);
                     //DEBUG:.................................................
                     int[] tmp1 = new int[3];
@@ -426,8 +430,24 @@ public class MainTest {
                 u.setGradePosition(i + 1);
                 u.getCompetition(competitionId)
                         .setRank_in_grade(u_2.getCompetition(competitionId).getRank_in_grade());
-                u.getCompetition(competitionId).setRank_in_reg(regionRank);
-                //u.setRegionPosition(regionRank);
+                //for regional ranking we need to check the region of people with the same score
+                //the new regional rank shod be the same. or the same as position if we did not find any.
+                if(u_2.getRegion().equals(region)) {
+                    u.getCompetition(competitionId)
+                            .setRank_in_reg(u_2.getCompetition(competitionId).getRank_in_reg());
+                }else{
+                    for(int j=i-2; j>=0; j--){
+                        u_2 = mapGrade.get(listGrade.get(j));
+                        if(score != u_2.getCompetition(competitionId).getScore()) {
+                            //u.getCompetition(competitionId).setRank_in_reg(u.getRegionPosition());
+                            break;
+                        }
+                        if(u_2.getRegion().equals(region)){
+                            u.getCompetition(competitionId)
+                                    .setRank_in_reg(u_2.getCompetition(competitionId).getRank_in_reg());
+                        }
+                    }
+                }
                 //DEBUG:.................................................
                 int[] tmp = new int[3];
                 tmp[0]=u.getCompetition(competitionId).getScore();
@@ -444,7 +464,7 @@ public class MainTest {
                 listGrade.set(i, u.getId());
                 u.setGradePosition(i + 1);
                 //no need to set rank in grade!
-                u.getCompetition(competitionId).setRank_in_reg(regionRank);
+                //u.getCompetition(competitionId).setRank_in_reg(regionRank);
                 //u.setRegionPosition(regionRank);
                 //DEBUG:.................................................
                 int[] tmp = new int[3];
@@ -466,16 +486,16 @@ public class MainTest {
         // i = current pointer in the list(user's at first)
         int i = u.getGradePosition() - 1;
         int gradeRank = u.getCompetition(competitionId).getRank_in_grade();
-        int regionRank = u.getRegionPosition();
+        //int regionRank = u.getCompetition(competitionId).getRank_in_reg();
         int rankBuffer = 0;
         User u_2;
         //............................................
         //to start with I will bring the position to the first place
         //among all who have the same score.
         //....................................
-        //update the rank of users with the same score (as the old score), but a higher number for their position.
+        //update the rank and position of users with the same score (as the old score)
 
-        // this is being done by adding 1 to their ranks, leaving their position unchanged.
+        // for those at the bottom, this is being done by adding 1 to their ranks, leaving their position unchanged.
         if(i < listGrade.size() - 1) { //if the pointer is not on the last user
             for (int j = i; j < listGrade.size() - 1; j++) {
                 u_2 = mapGrade.get(listGrade.get(j + 1));
@@ -490,11 +510,12 @@ public class MainTest {
                 tmp[2]=u_2.getCompetition(competitionId).getRank_in_grade();
                 listGrade_Debug.set(j + 1, tmp);
                 //..............................................................
-//                if(u_2.getRegion().equals(region)){
-//                    u_2.getCompetition(competitionId).updateRank_in_reg(1);
-//                    u_2.updateRegionPosition(1);
-//                    regionRank --;
-//                }
+                if(u_2.getRegion().equals(region)){
+                    u_2.getCompetition(competitionId).updateRank_in_reg(1);
+                    //regionRank --;
+                    //u_2.updateRegionPosition(1);
+
+                }
             }
         }
 
@@ -517,7 +538,7 @@ public class MainTest {
                     u_2.getCompetition(competitionId).updateRank_in_reg(1);
                     u_2.updateRegionPosition(1);
                     u.updateRegionPosition(-1);
-                    regionRank --;
+                    //regionRank --; the same as old score -> all rank are the same now
                 }
                 // decreasing the pointer (grade position)
                 // now gradeRank grade rank should not be changed as we are moving through the same rank
@@ -531,8 +552,6 @@ public class MainTest {
                     if(1 != u.getCompetition(competitionId).getRank_in_grade()){
                         System.out.println("kir toosh");
                     }
-                    u.getCompetition(competitionId).setRank_in_reg(regionRank);
-                    //u.setRegionPosition(regionRank);
                     //DEBUG:.................................................
                     int[] tmp1 = new int[3];
                     tmp1[0]=u.getCompetition(competitionId).getScore();
@@ -603,8 +622,9 @@ public class MainTest {
                 if (u_2.getRegion().equals(region)) {
                     u_2.getCompetition(competitionId).updateRank_in_reg(1);
                     u_2.updateRegionPosition(1);
+                    u.getCompetition(competitionId).updateRank_in_reg(-1);
                     u.updateRegionPosition(-1);
-                    regionRank--;
+                    //regionRank--;
                 }
                 // decreasing the pointer (grade position)
                 i--;
@@ -620,7 +640,7 @@ public class MainTest {
                     listGrade.set(i, u.getId());
                     u.setGradePosition(i + 1);
                     //no need to set rank in grade!
-                    u.getCompetition(competitionId).setRank_in_reg(regionRank);
+                    //u.getCompetition(competitionId).setRank_in_reg();
                     //u.setRegionPosition(regionRank);
                     //DEBUG:.................................................
                     int[] tmp1 = new int[3];
@@ -643,8 +663,24 @@ public class MainTest {
                 u.setGradePosition(i + 1);
                 u.getCompetition(competitionId)
                         .setRank_in_grade(u_2.getCompetition(competitionId).getRank_in_grade());
-                u.getCompetition(competitionId).setRank_in_reg(regionRank);
                 //u.setRegionPosition(regionRank);
+                if(u_2.getRegion().equals(region)) {
+                    u.getCompetition(competitionId)
+                            .setRank_in_reg(u_2.getCompetition(competitionId).getRank_in_reg());
+                }else{
+                    for(int j=i-2; j>=0; j--){
+                        u_2 = mapGrade.get(listGrade.get(j));
+                        if(score != u_2.getCompetition(competitionId).getScore()) {
+                            //u.getCompetition(competitionId).setRank_in_reg(regionRank);
+                            u.getCompetition(competitionId).setRank_in_reg(u.getRegionPosition()); //i+1
+                            break;
+                        }
+                        if(u_2.getRegion().equals(region)){
+                            u.getCompetition(competitionId)
+                                    .setRank_in_reg(u_2.getCompetition(competitionId).getRank_in_reg());
+                        }
+                    }
+                }
                 //DEBUG:.................................................
                 int[] tmp = new int[3];
                 tmp[0]=u.getCompetition(competitionId).getScore();
@@ -661,7 +697,7 @@ public class MainTest {
                 listGrade.set(i, u.getId());
                 u.setGradePosition(i + 1);
                 //no need to set rank in grade!
-                u.getCompetition(competitionId).setRank_in_reg(regionRank);
+                //u.getCompetition(competitionId).setRank_in_reg(u.getRegionPosition());
                 //u.setRegionPosition(regionRank);
                 //DEBUG:.................................................
                 int[] tmp = new int[3];
@@ -675,7 +711,7 @@ public class MainTest {
         }
         // here our use is already the first place, all his rank are already 1.
         // we have already increased the rank of other with the same previous score!
-        // nothing to do then! todo : add DEBUG: to have the new score
+        // nothing to do then!
         //DEBUG:........................................................
         int[] tmp = new int[3];
         tmp[0] = u.getCompetition(competitionId).getScore();
@@ -690,7 +726,7 @@ public class MainTest {
         // i = current pointer in the list(user's at first)
         int i = u.getGradePosition() - 1;
         int gradeRank = u.getCompetition(competitionId).getRank_in_grade();
-        int regionRank = u.getRegionPosition();
+        //int regionRank = u.getRegionPosition();
         int rankBuffer = 0;
         User u_2;
         //............................................
@@ -715,10 +751,10 @@ public class MainTest {
                 listGrade_Debug.set(i, tmp);
                 //..............................................................
                 if (u_2.getRegion().equals(region)) {
-                    u_2.getCompetition(competitionId).updateRank_in_reg(-1);
+                    //u_2.getCompetition(competitionId).updateRank_in_reg(-1);
                     u_2.updateRegionPosition(-1);
                     u.updateRegionPosition(1);
-                    regionRank++;
+                    //regionRank++;
                 }
                 // increasing the pointer (grade position)
                 // now gradeRank grade rank should not be changed as we are moving through the same rank
@@ -730,7 +766,7 @@ public class MainTest {
                     // his last score is the same as one above! now his score decreased!
                     // he is the absolute last person of this competition! booooooo
                     u.getCompetition(competitionId).setRank_in_grade(i + 1);
-                    u.getCompetition(competitionId).setRank_in_reg(regionRank);
+                    u.getCompetition(competitionId).setRank_in_reg(u.getRegionPosition());//absolute last person: postion and rank are the same
                     //u.setRegionPosition(regionRank);
                     //DEBUG:.................................................
                     int[] tmp1 = new int[3];
@@ -788,7 +824,9 @@ public class MainTest {
                     u_2.getCompetition(competitionId).updateRank_in_reg(-1);
                     u_2.updateRegionPosition(-1);
                     u.updateRegionPosition(1);
-                    regionRank++;
+                    u.getCompetition(competitionId).setRank_in_reg(u.getRegionPosition());
+
+                    //regionRank++;
                 }
                 // increasing the pointer (grade position)
                 i++;
@@ -798,10 +836,10 @@ public class MainTest {
                     //last place, :(
                     listGrade.set(i, u.getId());
                     u.setGradePosition(i + 1);
-                    // his last score is the same as one above! now his score decreased!
+                    // his last score was the same as one above! now his score decreased!
                     // he is the absolute last person of this competition! booooooo
                     //u.getCompetition(competitionId).setRank_in_grade(i + 1);// we just did
-                    u.getCompetition(competitionId).setRank_in_reg(regionRank);
+                    //u.getCompetition(competitionId).setRank_in_reg(u.getRegionPosition());
                     //u.setRegionPosition(regionRank);
                     //DEBUG:.................................................
                     int[] tmp1 = new int[3];
@@ -826,7 +864,7 @@ public class MainTest {
                     System.out.println("kir toosh");
                 }
                 u.getCompetition(competitionId).setRank_in_grade(i + 1);// we just did - or we did not!! :D
-                u.getCompetition(competitionId).setRank_in_reg(regionRank);
+                u.getCompetition(competitionId).setRank_in_reg(u.getRegionPosition());
                 //u.setRegionPosition(regionRank);
                 //DEBUG:.................................................
                 int[] tmp = new int[3];
@@ -838,6 +876,9 @@ public class MainTest {
                 // update the others with the same score: now their rank is improved by one
                 //if(i < listGrade.size() - 1) { //if the pointer is not on the last user- no need we did before
                 u_2.getCompetition(competitionId).updateRank_in_grade(-1);
+                if(u_2.getRegion().equals(region)) {
+                    u_2.getCompetition(competitionId).updateRank_in_reg(-1);
+                }
                 //DEBUG:.................................................
                 int[] tmp1 = new int[3];
                 tmp1[0] = u_2.getCompetition(competitionId).getScore();
@@ -851,6 +892,9 @@ public class MainTest {
                         return;
                     //no change in position
                     u_2.getCompetition(competitionId).updateRank_in_grade(-1);
+                    if(u_2.getRegion().equals(region)) {
+                        u_2.getCompetition(competitionId).updateRank_in_reg(-1);
+                    }
                     int[] tmp2 = new int[3];
                     tmp2[0] = u_2.getCompetition(competitionId).getScore();
                     tmp2[1] = u_2.getGradePosition();
@@ -860,20 +904,19 @@ public class MainTest {
                 return;
             }
             /* if the new score is more than who is just after, we need
-               just to take the current position as user's position
+               just to take the current position and rank as user's position
                rank is one less than the rank of the next user*/
             if (score > u_2.getCompetition(competitionId).getScore()) {
                 listGrade.set(i, u.getId());
                 u.setGradePosition(i + 1);
                 u.getCompetition(competitionId).setRank_in_grade(i + 1);
+                u.getCompetition(competitionId).setRank_in_reg(u.getRegionPosition());
                 // we already have set the grade rank to be i+1, these 2 value should be the same.
                 //u.getCompetition(competitionId).setRank_in_grade(u_2.getCompetition(competitionId).getRank_in_grade()-1);
                 Assert.assertEquals(u.getCompetition(competitionId).getRank_in_grade(), u_2.getCompetition(competitionId).getRank_in_grade()-1);
                 if((u.getCompetition(competitionId).getRank_in_grade() != u_2.getCompetition(competitionId).getRank_in_grade()-1)){
                     System.out.println("kir toosh");
                 }
-                u.getCompetition(competitionId).setRank_in_reg(regionRank);
-                //u.setRegionPosition(regionRank);
                 //DEBUG:.................................................
                 int[] tmp = new int[3];
                 tmp[0] = u.getCompetition(competitionId).getScore();
@@ -892,7 +935,7 @@ public class MainTest {
             // his last score is the same as one above! now his score decreased!
             // he is the absolute last person of this competition! booooooo
             u.getCompetition(competitionId).setRank_in_grade(i + 1);
-            u.getCompetition(competitionId).setRank_in_reg(regionRank);
+            u.getCompetition(competitionId).setRank_in_reg(u.getRegionPosition());
             //u.setRegionPosition(regionRank);
             //DEBUG:.................................................
             int[] tmp = new int[3];
