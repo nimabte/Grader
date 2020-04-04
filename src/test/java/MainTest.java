@@ -237,7 +237,7 @@ public class MainTest {
                 //c_participants.put(u.getId(), u);
                 switch(u.getGrade()) {
                     case 4:
-                        //update regional rank
+                        //preparation for regional rank
                         region = u.getRegion();
                         regionLastRank = Main.mapRegion_4.getOrDefault(region, -1);
                         if(regionLastRank == -1){
@@ -250,7 +250,7 @@ public class MainTest {
                             u.getCompetition(competitionId).setRank_in_reg(regionLastRank);
                             u.setRegionPosition(regionLastRank);
                         }
-                        //Update grade rank
+                        //Update ranks
                         Main.mapGrade_4.put(u.getId(), u);
                         Main.listGrade_4.add(u.getId());
                         u.getCompetition(competitionId).setRank_in_grade(Main.listGrade_4.size());
@@ -333,7 +333,7 @@ public class MainTest {
 
             /* if the new score is less than who is just before, we need
                just to take the current position as user's position
-               rank should be automatically the same as the position*/
+               rank should be automatically the same as the position
             if(score < u_2.getCompetition(competitionId).getScore()){
                 listGrade.set(i, u.getId());
                 u.setGradePosition(i + 1);
@@ -349,9 +349,9 @@ public class MainTest {
                 //.......................................................
                 return;
             }
-            /* the new score is the same with the whone who stands just before!
+            /* the new score is the same with the one who stands just before!
                we need to take the current position as users position
-               and the rank of u-2 as his new rank!*/
+               and the rank of u-2 as his new rank!
             else if(score == u_2.getCompetition(competitionId).getScore()){
                 listGrade.set(i, u.getId());
                 u.setGradePosition(i + 1);
@@ -391,7 +391,7 @@ public class MainTest {
                 // now the rank in grade also should be declined
                 u.getCompetition(competitionId).updateRank_in_grade(-1);
                 //again, at current position rank and position should be the same:
-                //Assert.assertEquals(i + 1, u.getCompetition(competitionId).getRank_in_grade());
+                Assert.assertEquals(i + 1, u.getCompetition(competitionId).getRank_in_grade());
                 if(i + 1 != u.getCompetition(competitionId).getRank_in_grade()){
                     System.out.println("kir toosh");
                 }
@@ -523,7 +523,7 @@ public class MainTest {
                     listGrade.set(i, u.getId());
                     u.setGradePosition(i + 1);
                     //no need to set rank in grade!
-                   // Assert.assertEquals( 1, u.getCompetition(competitionId).getRank_in_grade());
+                    Assert.assertEquals( 1, u.getCompetition(competitionId).getRank_in_grade());
                     if(1 != u.getCompetition(competitionId).getRank_in_grade()){
                         System.out.println("kir toosh");
                     }
@@ -542,13 +542,13 @@ public class MainTest {
             }
             //Now the user position should be the first among those who have the same score as he did
             //then at current position rank and position should be the same:
-            //Assert.assertEquals(i + 1, u.getCompetition(competitionId).getRank_in_grade());
+            Assert.assertEquals(i + 1, u.getCompetition(competitionId).getRank_in_grade());
             if(i + 1 != u.getCompetition(competitionId).getRank_in_grade()){
                 System.out.println("kir toosh");
             }
             /* if the new score is less than who is just before, we need
                just to take the current position as user's position
-               rank should be automatically the same as the position*/
+               rank should be automatically the same as the position
             if(score < u_2.getCompetition(competitionId).getScore()){
                 listGrade.set(i, u.getId());
                 u.setGradePosition(i + 1);
@@ -566,7 +566,7 @@ public class MainTest {
             }
             /* the new score is the same with the whone who stands just before!
                we need to take the current position as users position
-               and the rank of u-2 as his new rank!*/
+               and the rank of u-2 as his new rank!
             else if(score == u_2.getCompetition(competitionId).getScore()){
                 listGrade.set(i, u.getId());
                 u.setGradePosition(i + 1);
@@ -606,7 +606,7 @@ public class MainTest {
                 // now the rank in grade also should be declined
                 u.getCompetition(competitionId).updateRank_in_grade(-1);
                 //again, at current position rank and position should be the same:
-                //Assert.assertEquals(i + 1, u.getCompetition(competitionId).getRank_in_grade());
+                Assert.assertEquals(i + 1, u.getCompetition(competitionId).getRank_in_grade());
                 if(i + 1 != u.getCompetition(competitionId).getRank_in_grade()){
                     System.out.println("kir toosh");
                 }
@@ -741,30 +741,30 @@ public class MainTest {
             //........................................................................................
             //Now the user position should be the last among those who have the same score as he did
             //then for u_2 we should have:
-            //Assert.assertEquals(i + 2, u_2.getCompetition(competitionId).getRank_in_grade());
+            Assert.assertEquals(i + 2, u_2.getCompetition(competitionId).getRank_in_grade());
             if(i + 2 != u_2.getCompetition(competitionId).getRank_in_grade()){
                 System.out.println("kir toosh");
             }
             /* if the new score is more than who is just after, we need
                just to take the current position as user's position
                rank is one less than the rank of the next user*/
-            if (score > u_2.getCompetition(competitionId).getScore()) {
-                listGrade.set(i, u.getId());
-                u.setGradePosition(i + 1);
-                //u.getCompetition(competitionId).setRank_in_grade(i + 1);
-                u.getCompetition(competitionId)
-                        .setRank_in_grade(u_2.getCompetition(competitionId).getRank_in_grade()-1);
-                u.getCompetition(competitionId).setRank_in_reg(regionRank);
-                u.setRegionPosition(regionRank);
-                //DEBUG:.................................................
-                int[] tmp = new int[3];
-                tmp[0] = u.getCompetition(competitionId).getScore();
-                tmp[1] = u.getGradePosition();
-                tmp[2] = u.getCompetition(competitionId).getRank_in_grade();
-                listGrade_Debug.set(i, tmp);
-                //.......................................................
-                return;
-            }
+//            if (score > u_2.getCompetition(competitionId).getScore()) {
+//                listGrade.set(i, u.getId());
+//                u.setGradePosition(i + 1);
+//                //u.getCompetition(competitionId).setRank_in_grade(i + 1);
+//                u.getCompetition(competitionId)
+//                        .setRank_in_grade(u_2.getCompetition(competitionId).getRank_in_grade()-1);
+//                u.getCompetition(competitionId).setRank_in_reg(regionRank);
+//                u.setRegionPosition(regionRank);
+//                //DEBUG:.................................................
+//                int[] tmp = new int[3];
+//                tmp[0] = u.getCompetition(competitionId).getScore();
+//                tmp[1] = u.getGradePosition();
+//                tmp[2] = u.getCompetition(competitionId).getRank_in_grade();
+//                listGrade_Debug.set(i, tmp);
+//                //.......................................................
+//                return;
+//            }
             //if (score < u_2.getCompetition(competitionId).getScore()) starts here:
             /* new score is less! change the position and ranks as much as needed*/
             while (score < u_2.getCompetition(competitionId).getScore()) {
@@ -814,7 +814,7 @@ public class MainTest {
             if (score == u_2.getCompetition(competitionId).getScore()) {
                 listGrade.set(i, u.getId());
                 u.setGradePosition(i + 1);
-                //Assert.assertEquals(u.getCompetition(competitionId).getRank_in_grade(), u_2.getCompetition(competitionId).getRank_in_grade()-1);
+                Assert.assertEquals(u.getGradePosition(), u_2.getCompetition(competitionId).getRank_in_grade()-1);
                 if((u.getGradePosition() != u_2.getCompetition(competitionId).getRank_in_grade()-1)){
                     System.out.println("kir toosh");
                 }
@@ -852,13 +852,16 @@ public class MainTest {
                 }
                 return;
             }
-            //todo this if will be replaced by the one above later
+            /* if the new score is more than who is just after, we need
+               just to take the current position as user's position
+               rank is one less than the rank of the next user*/
             if (score > u_2.getCompetition(competitionId).getScore()) {
                 listGrade.set(i, u.getId());
                 u.setGradePosition(i + 1);
+                u.getCompetition(competitionId).setRank_in_grade(i + 1);
                 // we already have set the grade rank to be i+1, these 2 value should be the same.
                 //u.getCompetition(competitionId).setRank_in_grade(u_2.getCompetition(competitionId).getRank_in_grade()-1);
-                //Assert.assertEquals(u.getCompetition(competitionId).getRank_in_grade(), u_2.getCompetition(competitionId).getRank_in_grade()-1);
+                Assert.assertEquals(u.getCompetition(competitionId).getRank_in_grade(), u_2.getCompetition(competitionId).getRank_in_grade()-1);
                 if((u.getCompetition(competitionId).getRank_in_grade() != u_2.getCompetition(competitionId).getRank_in_grade()-1)){
                     System.out.println("kir toosh");
                 }
