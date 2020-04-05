@@ -8,6 +8,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Main {
+    public static final String ANSI_YELLOW = "\u001B[33m";
+    public static final String ANSI_GREEN = "\u001B[32m";
+    public static final String ANSI_RESET = "\u001B[0m";
     public static HashMap<ObjectId, User> users;
     public static HashMap<ObjectId, User> c_participants;
     public static HashMap<ObjectId, User> mapGrade_3;
@@ -39,8 +42,11 @@ public class Main {
         Logger mongoLogger = Logger.getLogger("org.mongodb.driver");
         mongoLogger.setLevel(Level.WARNING);
         MongoHandler mongoHandler = new MongoHandler();
+        System.out.println(ANSI_YELLOW + "______________________________________");
         mongoHandler.mongoClientInstance();
+        System.out.println(ANSI_GREEN + "______________________________________");
         mongoHandler.getCollections();
+        System.out.println(ANSI_RESET + "______________________________________");
         //................................
         Queue<Submission> submissions = mongoHandler.readSubmissions();
         HashMap<ObjectId, BsonDocument> problems = mongoHandler.readProblems();
