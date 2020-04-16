@@ -30,6 +30,8 @@ public class MainTest2 {
     public static final int CORRECT_ANSWER = 3;
     public static final int WRONG_ANSWER = -1;
     public static final int NO_ANSWER = 0;
+    public static final int grade_a = 3;
+    public static final int grade_b = 4;
     //private static ResourceBundle myBundle = ResourceBundle.getBundle("grader");
     private static ObjectId eventId;
     private static String eventTitle;
@@ -57,12 +59,12 @@ public class MainTest2 {
         HashMap<ObjectId, BsonDocument> problems = mongoHandler.readProblems();
         Main.users = mongoHandler.getUsers();
         Main.c_participants = new HashMap<>();
-        Main.mapGrade_3 = new HashMap<>();
-        Main.mapGrade_4 = new HashMap<>();
-        Main.mapRegion_3 = new HashMap<>();
-        Main.mapRegion_4 = new HashMap<>();
-        Main.listGrade_3 = new ArrayList<>();
-        Main.listGrade_4 = new ArrayList<>();
+        Main.mapGrade_a = new HashMap<>();
+        Main.mapGrade_b = new HashMap<>();
+        Main.mapRegion_a = new HashMap<>();
+        Main.mapRegion_b = new HashMap<>();
+        Main.listGrade_a = new ArrayList<>();
+        Main.listGrade_b = new ArrayList<>();
         listGrade_Debug = new ArrayList<>();
 
         System.out.println(ANSI_GREEN + "______________________________________" + ANSI_RESET);
@@ -87,7 +89,7 @@ public class MainTest2 {
             p = problems.get(p_id); // get problem in the format of BsonDocument
             if (p == null) {
                 //TODO: try to catch the problem into the HashMap of problems from the db
-                System.err.println("Error: the problem did not found in the HashMap");
+                System.err.println("Main line 90 -- Error: the problem did not found in the HashMap");
             } else {
                 type = p.getString("type").getValue();
                 switch (type) {
@@ -177,7 +179,7 @@ public class MainTest2 {
             u = Main.users.get(u_id);
             if(u == null) {
                 //String msg = "User no found in Hashmap!";
-                throw new Exception(" Main: Line 173 _ User not found in Hashmap!");
+                throw new Exception(" Main: Line 180 _ User not found in Hashmap!");
             }
         } catch (Exception e) {
             System.err.println(ANSI_YELLOW + e.getLocalizedMessage() + ANSI_RED);
@@ -197,8 +199,8 @@ public class MainTest2 {
                         int rR, rP;
                         String region_1;
                         int c = 0;
-                        for (int i = 0; i < Main.listGrade_4.size(); i++) {
-                            uu = Main.mapGrade_4.get(Main.listGrade_4.get(i));
+                        for (int i = 0; i < Main.listGrade_b.size(); i++) {
+                            uu = Main.mapGrade_b.get(Main.listGrade_b.get(i));
                             score = uu.getCompetition(competitionId).getScore();
                             gR = uu.getCompetition(competitionId).getRank_in_grade();
                             gP = uu.getGradePosition();
@@ -221,32 +223,8 @@ public class MainTest2 {
                    throw new Exception("Main: line 221 _ User's grade is not valid!");
             }
         } catch (Exception e) {
-             //System.err.println(e.getLocalizedMessage());
+             System.err.println(e.getLocalizedMessage());
         }
-    }
-
-    private static boolean userRankUpdate(User u, int oldScore, int updateDirection) {
-        if(u.getGrade() == 4) {
-            if(updateDirection > 0) {
-                upwardRankUpdate(u, Main.listGrade_4, Main.mapGrade_4, u.getRegion(), Main.mapRegion_4, oldScore);
-                return true;
-            }
-            if(updateDirection < 0){
-                downwardRankUpdate(u, Main.listGrade_4, Main.mapGrade_4, u.getRegion(), Main.mapRegion_4, oldScore);
-            }
-            return true;
-        }
-        if(u.getGrade() == 3) {
-            if(updateDirection > 0) {
-                upwardRankUpdate(u, Main.listGrade_3, Main.mapGrade_3, u.getRegion(), Main.mapRegion_3, oldScore);
-                return true;
-            }
-            if(updateDirection < 0){
-                downwardRankUpdate(u, Main.listGrade_3, Main.mapGrade_3, u.getRegion(), Main.mapRegion_3, oldScore);
-            }
-            return true;
-        }
-        return false;
     }
 
     private static void userFirstTimePreparation(ObjectId p_id, int lt, int mark, User u) throws Exception {
@@ -259,27 +237,27 @@ public class MainTest2 {
         String region;
         int regionLastRank;
         switch(u.getGrade()) {
-            case 4:
+            case grade_b:
                 //preparation for regional rank
                 region = u.getRegion();
-                regionLastRank = Main.mapRegion_4.getOrDefault(region, -1);
+                regionLastRank = Main.mapRegion_b.getOrDefault(region, -1);
                 //if the region is not in our map (it is the first time)
                 if(regionLastRank == -1){
                     // the last position in this region is 1 the current user
-                    Main.mapRegion_4.put(region, 1);
+                    Main.mapRegion_b.put(region, 1);
                     u.getCompetition(competitionId).setRank_in_reg(1);
                     u.setRegionPosition(1);
                 }else{
                     regionLastRank ++;
-                    Main.mapRegion_4.put(region, regionLastRank);
+                    Main.mapRegion_b.put(region, regionLastRank);
                     u.getCompetition(competitionId).setRank_in_reg(regionLastRank);
                     u.setRegionPosition(regionLastRank);
                 }
                 //Update ranks
-                Main.mapGrade_4.put(u.getId(), u);
-                Main.listGrade_4.add(u.getId());
-                u.getCompetition(competitionId).setRank_in_grade(Main.listGrade_4.size());
-                u.setGradePosition(Main.listGrade_4.size());
+                Main.mapGrade_b.put(u.getId(), u);
+                Main.listGrade_b.add(u.getId());
+                u.getCompetition(competitionId).setRank_in_grade(Main.listGrade_b.size());
+                u.setGradePosition(Main.listGrade_b.size());
                 //DEBUG:................................................
                 int[] tmp = new int[5];
                 tmp[0]=u.getCompetition(competitionId).getScore();
@@ -289,29 +267,29 @@ public class MainTest2 {
                 tmp[4] = u.getCompetition(competitionId).getRank_in_reg();
                 //DEBUG:................................................
                 listGrade_Debug.add(tmp);
-                firstTimeRankUpdate(u, Main.listGrade_4, Main.mapGrade_4, region, Main.mapRegion_4);
+                firstTimeRankUpdate(u, Main.listGrade_b, Main.mapGrade_b, region, Main.mapRegion_b);
                 break;
-            case 3:
+            case grade_a:
                 //preparation for regional rank
                 region = u.getRegion();
-                regionLastRank = Main.mapRegion_3.getOrDefault(region, -1);
+                regionLastRank = Main.mapRegion_a.getOrDefault(region, -1);
                 //if the region is not in our map (it is the first time)
                 if(regionLastRank == -1){
                     // the last position in this region is 1 the current user
-                    Main.mapRegion_3.put(region, 1);
+                    Main.mapRegion_a.put(region, 1);
                     u.getCompetition(competitionId).setRank_in_reg(1);
                     u.setRegionPosition(1);
                 }else{
                     regionLastRank ++;
-                    Main.mapRegion_3.put(region, regionLastRank);
+                    Main.mapRegion_a.put(region, regionLastRank);
                     u.getCompetition(competitionId).setRank_in_reg(regionLastRank);
                     u.setRegionPosition(regionLastRank);
                 }
                 //Update ranks
-                Main.mapGrade_3.put(u.getId(), u);
-                Main.listGrade_3.add(u.getId());
-                u.getCompetition(competitionId).setRank_in_grade(Main.listGrade_3.size());
-                u.setGradePosition(Main.listGrade_3.size());
+                Main.mapGrade_a.put(u.getId(), u);
+                Main.listGrade_a.add(u.getId());
+                u.getCompetition(competitionId).setRank_in_grade(Main.listGrade_a.size());
+                u.setGradePosition(Main.listGrade_a.size());
                 //DEBUG:................................................
                 int[] tmp1 = new int[5];
                 tmp1[0]=u.getCompetition(competitionId).getScore();
@@ -321,11 +299,35 @@ public class MainTest2 {
                 tmp1[4] = u.getCompetition(competitionId).getRank_in_reg();
                 listGrade_Debug.add(tmp1);
                 //.......................................................
-                firstTimeRankUpdate(u, Main.listGrade_3, Main.mapGrade_3, region, Main.mapRegion_3);
+                firstTimeRankUpdate(u, Main.listGrade_a, Main.mapGrade_a, region, Main.mapRegion_a);
                 break;
             default:
-                throw new IllegalStateException("Main: line 276 _ Unexpected value for participant's grade: " + u.getGrade());
+                throw new IllegalStateException("Main: line 327 _ Unexpected value for participant's grade: " + u.getGrade());
         }
+    }
+
+    private static boolean userRankUpdate(User u, int oldScore, int updateDirection) {
+        if(u.getGrade() == grade_b) {
+            if(updateDirection > 0) {
+                upwardRankUpdate(u, Main.listGrade_b, Main.mapGrade_b, u.getRegion(), Main.mapRegion_b, oldScore);
+                return true;
+            }
+            if(updateDirection < 0){
+                downwardRankUpdate(u, Main.listGrade_b, Main.mapGrade_b, u.getRegion(), Main.mapRegion_b, oldScore);
+            }
+            return true;
+        }
+        if(u.getGrade() == grade_a) {
+            if(updateDirection > 0) {
+                upwardRankUpdate(u, Main.listGrade_a, Main.mapGrade_a, u.getRegion(), Main.mapRegion_a, oldScore);
+                return true;
+            }
+            if(updateDirection < 0){
+                downwardRankUpdate(u, Main.listGrade_a, Main.mapGrade_a, u.getRegion(), Main.mapRegion_a, oldScore);
+            }
+            return true;
+        }
+        return false;
     }
 
     private static void firstTimeRankUpdate(@NotNull User u, @NotNull ArrayList<ObjectId> listGrade, HashMap<ObjectId,User> mapGrade, String region, HashMap<String, Integer> mapRegion) {
@@ -1011,7 +1013,7 @@ public class MainTest2 {
         String region;
         int c =0;
         for(int i =0; i<105; i++){
-            u = Main.mapGrade_3.get(Main.listGrade_3.get(i));
+            u = Main.mapGrade_a.get(Main.listGrade_a.get(i));
             score = u.getCompetition(competitionId).getScore();
             gR = u.getCompetition(competitionId).getRank_in_grade();
             gP = u.getGradePosition();
