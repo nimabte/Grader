@@ -1,10 +1,14 @@
+import event_description.Event_desc;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
 import org.junit.Test;
 import org.bson.BsonDocument;
 import org.bson.BsonString;
 import org.bson.types.ObjectId;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
 
+import java.io.InputStream;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -33,6 +37,14 @@ public class MainTest3 {
     private static int counter;
     @Test
     public void main() {
+        Event_desc eventDesc = new Event_desc();
+        Yaml yaml = new Yaml(new Constructor(Event_desc.class));;
+        try(InputStream in = ClassLoader.getSystemResourceAsStream("bebras_evaluator.yml")) {
+            eventDesc = yaml.loadAs(in, Event_desc.class);
+        } catch(Exception ex) {
+            ex.printStackTrace();
+        }
+        System.out.println(eventDesc.toString());
         counter = 0;
         eventId = new ObjectId();
         eventTitle = "e_bebras_17";
@@ -60,6 +72,9 @@ public class MainTest3 {
         Main.listGrade_a = new ArrayList<>();
         Main.listGrade_b = new ArrayList<>();
         listGrade_Debug = new ArrayList<>();
+        ObjectId a = new ObjectId();
+        ObjectId b = new ObjectId();
+        System.out.println(a + "\n" + b);
         System.out.println(ANSI_GREEN + "______________________________________" + ANSI_RESET);
         checkSubmissions(problems, submissions);
         outputTest();

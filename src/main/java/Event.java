@@ -28,7 +28,7 @@ public class Event {
     public String getTitle() {
         return title;
     }
-    public void setScore(final String title) {
+    public void setTitle(final String title) {
         this.title = title;
     }
 

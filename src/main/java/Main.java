@@ -1,6 +1,11 @@
+import event_description.Event_desc;
 import org.bson.BsonDocument;
 import org.bson.BsonString;
 import org.bson.types.ObjectId;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
+
+import java.io.InputStream;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -33,6 +38,12 @@ public class Main {
 
     public static void main(String[] args) {
         //counter = 0;
+        Yaml yaml = new Yaml(new Constructor(Event_desc.class));
+        InputStream inputStream = Main.class
+                .getClassLoader()
+                .getResourceAsStream("bebras_evaluator.yml");
+        Event_desc event_desc = yaml.load(inputStream);
+        System.out.println(event_desc);
         eventId = new ObjectId();
         eventTitle = "e_bebras_17";
         competitionId = new ObjectId();
