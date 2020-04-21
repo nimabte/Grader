@@ -9,15 +9,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class MainTest2 {
-    //    public static HashMap<ObjectId, User> Main.users;
-//    public static HashMap<ObjectId, User> Main.c_participants;
-//    public static HashMap<ObjectId, User> Main.mapGrade_3;
-//    public static HashMap<ObjectId, User> Main.mapGrade_4;
-//    public static HashMap<String, Integer> Main.mapRegion_4;
-//    public static HashMap<String, Integer> Main.mapRegion_3;
-//    public static ArrayList<ObjectId> Main.listGrade_3;
-//    public static ArrayList<ObjectId> Main.listGrade_4;
+public class MainTest3 {
     public static ArrayList<int[]> listGrade_Debug;
     //..................................
     public static final String ANSI_YELLOW = "\u001B[33m";
@@ -30,9 +22,10 @@ public class MainTest2 {
     public static final int CORRECT_ANSWER = 3;
     public static final int WRONG_ANSWER = -1;
     public static final int NO_ANSWER = 0;
-    public static final int grade_a = 3;
-    public static final int grade_b = 4;
-    //private static ResourceBundle myBundle = ResourceBundle.getBundle("grader");
+    //public static final int grade_a = 3;
+    //public static final int grade_b = 4;
+    public static final int grade_a = 5;
+    public static final int grade_b = 6;
     private static ObjectId eventId;
     private static String eventTitle;
     private static ObjectId competitionId;
@@ -44,7 +37,8 @@ public class MainTest2 {
         eventId = new ObjectId();
         eventTitle = "e_bebras_17";
         competitionId = new ObjectId();
-        competitionTitle = "c_bebras17_3-4";
+        //competitionTitle = "c_bebras17_3-4";
+        competitionTitle = "bebras17-5-6";
         System.out.println("____________ INITIALIZING ____________");
         //................................
         Logger mongoLogger = Logger.getLogger("org.mongodb.driver");
@@ -66,10 +60,10 @@ public class MainTest2 {
         Main.listGrade_a = new ArrayList<>();
         Main.listGrade_b = new ArrayList<>();
         listGrade_Debug = new ArrayList<>();
-
         System.out.println(ANSI_GREEN + "______________________________________" + ANSI_RESET);
         checkSubmissions(problems, submissions);
         outputTest();
+        program_ids();
     }
 
     private static boolean checkSubmissions(HashMap<ObjectId, BsonDocument> problems, Queue<Submission> submissions) {
@@ -220,10 +214,10 @@ public class MainTest2 {
                 u.getCompetition(competitionId).addTask(p_id, lt, mark);
                 int updateDirection = u.getCompetition(competitionId).getScore() - oldScore;
                 if (!userRankUpdate(u, oldScore, updateDirection))
-                   throw new Exception("Main: line 221 _ User's grade is not valid!");
+                    throw new Exception("Main: line 221 _ User's grade is not valid!");
             }
         } catch (Exception e) {
-             System.err.println(e.getLocalizedMessage());
+            System.err.println(e.getLocalizedMessage());
         }
     }
 
@@ -500,7 +494,7 @@ public class MainTest2 {
         // nothing to do then!
     }
 
-    private static void upwardRankUpdate(@NotNull User u, @NotNull ArrayList listGrade, HashMap<ObjectId, User> mapGrade, String region, HashMap<String, Integer> mapRegion, int oldScore) {
+    private static void upwardRankUpdate(@NotNull User u, @NotNull ArrayList<ObjectId> listGrade, HashMap<ObjectId, User> mapGrade, String region, HashMap<String, Integer> mapRegion, int oldScore) {
         int score = u.getCompetition(competitionId).getScore();
         // i = current pointer in the list(user's at first)
         int i = u.getGradePosition() - 1;
@@ -759,7 +753,7 @@ public class MainTest2 {
         //..............................................................
     }
 
-    private static void downwardRankUpdate(@NotNull User u, @NotNull ArrayList listGrade, HashMap<ObjectId, User> mapGrade, String region, HashMap<String, Integer> mapRegion, int oldScore) {
+    private static void downwardRankUpdate(@NotNull User u, @NotNull ArrayList<ObjectId> listGrade, HashMap<ObjectId, User> mapGrade, String region, HashMap<String, Integer> mapRegion, int oldScore) {
         int score = u.getCompetition(competitionId).getScore();
         // i = current pointer in the list(user's at first)
         int i = u.getGradePosition() - 1;
@@ -1012,6 +1006,7 @@ public class MainTest2 {
         int rR,rP;
         String region;
         int c =0;
+        System.out.println(Main.listGrade_a.size());
         for(int i =0; i<105; i++){
             u = Main.mapGrade_a.get(Main.listGrade_a.get(i));
             score = u.getCompetition(competitionId).getScore();
@@ -1024,6 +1019,32 @@ public class MainTest2 {
                 c++;
                 System.out.println("Student_ID: " + u.getId() + " | Score:" + score + " | Grade_Rank:" + gR + " | Grade_Position:" + gP + " | Region_Rank:" + rR + " | Region_Position: " + rP + " | Region:" + region);
             }
+        }
+        System.out.println("Count:" + c);
+        System.out.println("*********************** yeaaaaahhhhh ***********************************************************");
+    }
+
+    private static void program_ids() {
+        User u;
+        int score;
+        int gR,gP;
+        int rR,rP;
+        String region;
+        int c =0;
+        for(int i =0; i<10; i++){
+            u = Main.mapGrade_b.get(Main.listGrade_b.get(i));
+            score = u.getCompetition(competitionId).getScore();
+            gR = u.getCompetition(competitionId).getRank_in_grade();
+            gP = u.getGradePosition();
+            rR = u.getCompetition(competitionId).getRank_in_reg();
+            rP = u.getRegionPosition();
+            region = u.getRegion();
+            if(region.equals("NVS"))
+                c++;
+            System.out.println("Student_ID: " + u.getId() + " | Score:" + score + " | Grade_Rank:" + gR + " | Grade_Position:" + gP + " | Region_Rank:" + rR + " | Region_Position: " + rP + " | Region:" + region);
+            u.getCompetition(competitionId).getTasks().forEach((key, val)->
+                    System.out.print( "pid: " + key + " ,ans: " + val[1] + " | "));
+            System.out.println();
         }
         System.out.println("Count:" + c);
         System.out.println("*********************** yeaaaaahhhhh ***********************************************************");

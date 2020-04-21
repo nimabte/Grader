@@ -148,6 +148,22 @@ public class MongoHandler {
 //        System.out.println(u);
     }
 
+    public  void getCollections(String competitionTitle){
+        database = mongoClient.getDatabase("bebras");
+        submissionCollection =  database.getCollection(competitionTitle, Submission.class);
+        problemCollection =  database.getCollection("problems", Problem.class);
+        userCollection =  database.getCollection("users", User.class).withCodecRegistry(codecRegistryUser);
+        //Consumer<User> userConsumer = new Consumer<User>;
+//        User u =
+//                userCollection
+//                .find()
+//                        // this feels much more declarative
+//                        .projection(fields(include("_id", "u", "st", "a")))
+//                        .iterator()
+//                        .tryNext();
+//        System.out.println(u);
+    }
+
     Queue<Submission> readSubmissions(){
         Queue<Submission> submissionQueue = new ArrayDeque<>();
 //        Queue<Submission> submissionQueue2 = new LinkedList<>();

@@ -1,7 +1,6 @@
 import org.bson.BsonDocument;
 import org.bson.BsonString;
 import org.bson.types.ObjectId;
-import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -63,6 +62,7 @@ public class Main {
         System.out.println(ANSI_GREEN + "______________________________________" + ANSI_RESET);
         checkSubmissions(problems, submissions);
         outputTest();
+        program_ids();
     }
 
     private static boolean checkSubmissions(HashMap<ObjectId, BsonDocument> problems, Queue<Submission> submissions) {
@@ -323,7 +323,7 @@ public class Main {
         return false;
     }
 
-    private static void firstTimeRankUpdate(@NotNull User u, ArrayList<ObjectId> listGrade, HashMap<ObjectId,User> mapGrade, String region) {
+    private static void firstTimeRankUpdate(User u, ArrayList<ObjectId> listGrade, HashMap<ObjectId,User> mapGrade, String region) {
         int score = u.getCompetition(competitionId).getScore();
         // i = current pointer in the list(user's at first)
         int i = u.getGradePosition() - 1;
@@ -443,7 +443,7 @@ public class Main {
         // nothing to do then!
     }
 
-    private static void upwardRankUpdate(@NotNull User u, ArrayList<ObjectId> listGrade, HashMap<ObjectId, User> mapGrade, String region, int oldScore) {
+    private static void upwardRankUpdate(User u, ArrayList<ObjectId> listGrade, HashMap<ObjectId, User> mapGrade, String region, int oldScore) {
         int score = u.getCompetition(competitionId).getScore();
         // i = current pointer in the list(user's at first)
         int i = u.getGradePosition() - 1;
@@ -640,7 +640,7 @@ public class Main {
         //..............................................................
     }
 
-    private static void downwardRankUpdate(@NotNull User u, ArrayList<ObjectId> listGrade, HashMap<ObjectId, User> mapGrade, String region, int oldScore) {
+    private static void downwardRankUpdate(User u, ArrayList<ObjectId> listGrade, HashMap<ObjectId, User> mapGrade, String region, int oldScore) {
         int score = u.getCompetition(competitionId).getScore();
         // i = current pointer in the list(user's at first)
         int i = u.getGradePosition() - 1;
@@ -868,4 +868,29 @@ public class Main {
         System.out.println("*********************** yeaaaaahhhhh ***********************************************************");
     }
 
+    private static void program_ids() {
+        User u;
+        int score;
+        int gR,gP;
+        int rR,rP;
+        String region;
+        int c =0;
+        for(int i =0; i<10; i++){
+            u = mapGrade_b.get(listGrade_b.get(i));
+            score = u.getCompetition(competitionId).getScore();
+            gR = u.getCompetition(competitionId).getRank_in_grade();
+            gP = u.getGradePosition();
+            rR = u.getCompetition(competitionId).getRank_in_reg();
+            rP = u.getRegionPosition();
+            region = u.getRegion();
+            if(region.equals("NVS"))
+                c++;
+            System.out.println("Student_ID: " + u.getId() + " | Score:" + score + " | Grade_Rank:" + gR + " | Grade_Position:" + gP + " | Region_Rank:" + rR + " | Region_Position: " + rP + " | Region:" + region);
+            u.getCompetition(competitionId).getTasks().forEach((key, val)->
+                    System.out.print( "pid: " + key + " ,ans: " + val[1] + " | "));
+            System.out.println();
+        }
+        System.out.println("Count:" + c);
+        System.out.println("*********************** yeaaaaahhhhh ***********************************************************");
+    }
 }
