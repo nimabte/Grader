@@ -38,9 +38,12 @@ public class MongoHandler {
     private CodecRegistry pojoCodecRegistry;
     private CodecRegistry codecRegistry;
     private MongoCollection<Submission> submissionCollection;
+    private ArrayList<MongoCollection<Submission>> submissionCollections;
     private MongoCollection<Problem> problemCollection;
     private CodecRegistry codecRegistryUser;
     private MongoCollection<User> userCollection;
+
+
 
     public static int testFunction(){
         return 0;
@@ -78,8 +81,8 @@ public class MongoHandler {
 //        database = mongoClient.getDatabase("bebras").withCodecRegistry(codecRegistry);
         //database = database.withCodecRegistry(pojoCodecRegistry);
 
-        // get a handle to the "bebras17-3-4" collection
-        //MongoCollection<Submission> collection = database.getCollection("bebras17-3-4", Submission.class);
+        // get a handle to the "bebras17_3_4" collection
+        //MongoCollection<Submission> collection = database.getCollection("bebras17_3_4", Submission.class);
 
 //        Submission somebody = collection.find().first();
 //        System.out.println(somebody);
@@ -134,7 +137,7 @@ public class MongoHandler {
     }
     public  void getCollections(){
         database = mongoClient.getDatabase("bebras");
-        submissionCollection =  database.getCollection("bebras17-3-4", Submission.class);
+        //submissionCollection =  database.getCollection("bebras17_3_4", Submission.class);
         problemCollection =  database.getCollection("problems", Problem.class);
         userCollection =  database.getCollection("users", User.class).withCodecRegistry(codecRegistryUser);
         //Consumer<User> userConsumer = new Consumer<User>;
@@ -148,23 +151,34 @@ public class MongoHandler {
 //        System.out.println(u);
     }
 
-    public  void getCollections(String competitionTitle){
-        database = mongoClient.getDatabase("bebras");
-        submissionCollection =  database.getCollection(competitionTitle, Submission.class);
-        problemCollection =  database.getCollection("problems", Problem.class);
-        userCollection =  database.getCollection("users", User.class).withCodecRegistry(codecRegistryUser);
-        //Consumer<User> userConsumer = new Consumer<User>;
-//        User u =
-//                userCollection
-//                .find()
-//                        // this feels much more declarative
-//                        .projection(fields(include("_id", "u", "st", "a")))
-//                        .iterator()
-//                        .tryNext();
-//        System.out.println(u);
+    public void getCompetitions(){
+        submissionCollections = new ArrayList<>();
+        //submissionCollections.add( database.getCollection(competitionTitle, Submission.class));
+        submissionCollections.add( database.getCollection("bebras17_3_4", Submission.class));
+        submissionCollections.add( database.getCollection("bebras17_5_6", Submission.class));
+        //submissionCollection = database.getCollection(competitionTitle, Submission.class);
+        //submissionCollection = submissionCollections.get(0);
     }
 
     Queue<Submission> readSubmissions(){
+        Queue<Submission> submissionQueue = new ArrayDeque<>();
+        Bson queryFilter = and(ne("pid", null));
+        for (MongoCollection<Submission> collection : submissionCollections) {
+            //collection.createIndex(Indexes.ascending("st"));
+            FindIterable<Submission> findIterable =
+                    collection
+                            .find(queryFilter)
+                            .sort(Indexes.ascending("st"));
+            try (MongoCursor<Submission> cursor = findIterable.iterator()) {
+                while (cursor.hasNext()) {
+                    submissionQueue.add(cursor.next());
+                }
+            }
+        }
+        return submissionQueue;
+    }
+
+    Queue<Submission> readSubmission(){
         Queue<Submission> submissionQueue = new ArrayDeque<>();
 //        Queue<Submission> submissionQueue2 = new LinkedList<>();
         Bson queryFilter = and(ne("pid", null));

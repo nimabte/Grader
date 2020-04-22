@@ -5,7 +5,7 @@ import java.util.Date;
 public final class Problem {
     private ObjectId _id;
     private BsonDocument p;
-    //private int lt;
+    private int score;
 
     public Problem(){
 
@@ -47,6 +47,14 @@ public final class Problem {
             return false;
         }
         return true;
+    }
+
+    public int getScore() {
+        return score;
+    }
+
+    public void setScore(int score) {
+        this.score = score;
     }
 
     @Override

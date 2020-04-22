@@ -9,16 +9,17 @@ public final class Submission {
     private Date st;
     private BsonDocument a;
     private int lt;
+    private ObjectId c_id;
 
     public Submission(){
 
     }
 
-    public ObjectId getId() {
+    public ObjectId get_id() {
         return _id;
     }
-    public void setId(final ObjectId id) {
-        this._id = id;
+    public void set_id(ObjectId _id) {
+        this._id = _id;
     }
 
     public ObjectId getPid() {
@@ -56,6 +57,14 @@ public final class Submission {
         this.st = time;
     }
 
+    public ObjectId getC_id() {
+        return c_id;
+    }
+
+    public void setC_id(ObjectId c_id) {
+        this.c_id = c_id;
+    }
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) {
@@ -70,7 +79,7 @@ public final class Submission {
         if (getPid() != null ? !getPid().equals(submission.getPid()) : submission.getPid() != null) {
             return false;
         }
-        if (getId() != null ? !getId().equals(submission.getId()) : submission.getId() != null) {
+        if (get_id() != null ? !get_id().equals(submission.get_id()) : submission.get_id() != null) {
             return false;
         }
         if (getU() != null ? !getU().equals(submission.getU()) : submission.getU() != null) {
@@ -91,7 +100,7 @@ public final class Submission {
 
     @Override
     public int hashCode() {
-        int result = getId() != null ? getId().hashCode() : 0;
+        int result = get_id() != null ? get_id().hashCode() : 0;
         result = 31 * result + (getU() != null ? getU().hashCode() : 0);
         result = 31 * result + getLt();
         result = 31 * result + (getA() != null ? getA().hashCode() : 0);
@@ -107,6 +116,7 @@ public final class Submission {
                 + ", localTime=" + lt
                 + ", serverTime=" + st
                 + ", answer=" + a
+                + ", competition_id=" + c_id
                 + "}";
     }
 }

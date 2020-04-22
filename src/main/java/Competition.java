@@ -85,7 +85,7 @@ public class Competition {
         return tasks.get(_id)[1];
     }
 
-    public void addTask(ObjectId p_id, int lt, int mark) {
+    public void updateTask(ObjectId p_id, int lt, int mark) throws Exception {
         int[] ans = tasks.get(p_id);
         if(ans != null){
             //if the saved answer is newer do nothing!
@@ -96,11 +96,13 @@ public class Competition {
             ans[1]=mark;
             return;
         }
-        ans = new int[2];
-        ans[0]=lt;
-        ans[1]=mark;
-        tasks.put(p_id, ans);
-        updateScore(0, mark);
+        // should not be null as all task now initialized
+        throw new Exception("Competition Class, line 100, not a valid problem for this competition!");
+//        ans = new int[2];
+//        ans[0]=lt;
+//        ans[1]=mark;
+//        tasks.put(p_id, ans);
+//        updateScore(0, mark);
     }
 
     private void updateScore(int previousTaskMark, int newTaskMark) {

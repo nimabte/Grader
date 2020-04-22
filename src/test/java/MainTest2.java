@@ -51,7 +51,7 @@ public class MainTest2 {
         mongoLogger.setLevel(Level.WARNING);
         MongoHandler mongoHandler = new MongoHandler();
         mongoHandler.mongoClientInstance();
-        mongoHandler.getCollections(competitionTitle);
+        mongoHandler.getCollections();
         System.out.println(ANSI_RED + "______________________________________");
         //................................
         Queue<Submission> submissions = mongoHandler.readSubmissions();
@@ -217,7 +217,7 @@ public class MainTest2 {
                 }
                 //....................................
                 int oldScore = u.getCompetition(competitionId).getScore();
-                u.getCompetition(competitionId).addTask(p_id, lt, mark);
+                u.getCompetition(competitionId).updateTask(p_id, lt, mark);
                 int updateDirection = u.getCompetition(competitionId).getScore() - oldScore;
                 if (!userRankUpdate(u, oldScore, updateDirection))
                    throw new Exception("Main: line 221 _ User's grade is not valid!");
@@ -231,7 +231,7 @@ public class MainTest2 {
         u.updateRegion();
         Event event = new Event(eventId, eventTitle);
         Competition competition = new Competition(competitionId, competitionTitle);
-        competition.addTask(p_id, lt, mark);
+        competition.updateTask(p_id, lt, mark);
         event.addCompetition(competition);
         u.addEvent(event);
         String region;

@@ -234,7 +234,7 @@ public class MainTest {
                 //.................................................
                 Event event = new Event(eventId, eventTitle);
                 Competition competition = new Competition(competitionId, competitionTitle);
-                competition.addTask(p_id, lt, mark);
+                competition.updateTask(p_id, lt, mark);
                 event.addCompetition(competition);
                 u.addEvent(event);
                 String region;
@@ -350,7 +350,7 @@ public class MainTest {
                     }
                 }
                 int oldScore = u.getCompetition(competitionId).getScore();
-                u.getCompetition(competitionId).addTask(p_id, lt, mark);
+                u.getCompetition(competitionId).updateTask(p_id, lt, mark);
                 int updateDirection = u.getCompetition(competitionId).getScore() - oldScore;
                 if(u.getGrade() == 4) {
                     if(updateDirection > 0) {
@@ -1051,5 +1051,11 @@ public class MainTest {
             //.......................................................
             return;
         }
+    }
+
+    @Test
+    public void mytest() {
+        int[] tmp = new int[3];
+        System.out.println(tmp[0]);
     }
 }

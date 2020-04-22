@@ -1,4 +1,4 @@
-import event_description.Event_desc;
+import event_description.*;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
 import org.junit.Test;
@@ -37,31 +37,27 @@ public class MainTest3 {
     private static int counter;
     @Test
     public void main() {
-        Event_desc eventDesc = new Event_desc();
+        Event_desc event_desc = new Event_desc();
         Yaml yaml = new Yaml(new Constructor(Event_desc.class));;
-        try(InputStream in = ClassLoader.getSystemResourceAsStream("bebras_evaluator.yml")) {
-            eventDesc = yaml.loadAs(in, Event_desc.class);
+        try(InputStream inputStream = ClassLoader.getSystemResourceAsStream("bebras_evaluator.yml")) {
+            event_desc = yaml.loadAs(inputStream, Event_desc.class);
         } catch(Exception ex) {
             ex.printStackTrace();
+            return;
         }
-        System.out.println(eventDesc.toString());
-        counter = 0;
-        eventId = new ObjectId();
-        eventTitle = "e_bebras_17";
-        competitionId = new ObjectId();
-        //competitionTitle = "c_bebras17_3-4";
-        competitionTitle = "bebras17-5-6";
+        //System.out.println(eventDesc.toString());
+        eventId =event_desc.get_id();
+        eventTitle = event_desc.getTitle();
         System.out.println("____________ INITIALIZING ____________");
         //................................
         Logger mongoLogger = Logger.getLogger("org.mongodb.driver");
         mongoLogger.setLevel(Level.WARNING);
         MongoHandler mongoHandler = new MongoHandler();
         mongoHandler.mongoClientInstance();
-        mongoHandler.getCollections(competitionTitle);
+        mongoHandler.getCollections();
+
         System.out.println(ANSI_RED + "______________________________________");
         //................................
-        Queue<Submission> submissions = mongoHandler.readSubmissions();
-        System.out.println(ANSI_YELLOW + "______________________________________");
         HashMap<ObjectId, BsonDocument> problems = mongoHandler.readProblems();
         Main.users = mongoHandler.getUsers();
         Main.c_participants = new HashMap<>();
@@ -72,13 +68,27 @@ public class MainTest3 {
         Main.listGrade_a = new ArrayList<>();
         Main.listGrade_b = new ArrayList<>();
         listGrade_Debug = new ArrayList<>();
-        ObjectId a = new ObjectId();
-        ObjectId b = new ObjectId();
-        System.out.println(a + "\n" + b);
         System.out.println(ANSI_GREEN + "______________________________________" + ANSI_RESET);
-        checkSubmissions(problems, submissions);
-        outputTest();
-        program_ids();
+
+        Iterator iterator = event_desc.getCompetition_list().iterator();
+        while (iterator.hasNext()) {
+            Competition_desc competition_desc = (Competition_desc) iterator.next();
+            competitionId = competition_desc.get_id();
+            competitionTitle = competition_desc.getTitle();
+            mongoHandler.getCompetitions();
+            Queue<Submission> submissions = mongoHandler.readSubmissions();
+            checkSubmissions(problems, submissions);
+            outputTest();
+            program_ids();
+        }
+//        competitionId = new ObjectId();
+//        competitionTitle = "bebras17_5_6";
+//        mongoHandler.getCompetition(competitionTitle);
+//        Queue<Submission> submissions = mongoHandler.readSubmissions();
+//        System.out.println(ANSI_YELLOW + "______________________________________");
+//        checkSubmissions(problems, submissions);
+//        outputTest();
+//        program_ids();
     }
 
     private static boolean checkSubmissions(HashMap<ObjectId, BsonDocument> problems, Queue<Submission> submissions) {
@@ -226,7 +236,7 @@ public class MainTest3 {
                 }
                 //....................................
                 int oldScore = u.getCompetition(competitionId).getScore();
-                u.getCompetition(competitionId).addTask(p_id, lt, mark);
+                u.getCompetition(competitionId).updateTask(p_id, lt, mark);
                 int updateDirection = u.getCompetition(competitionId).getScore() - oldScore;
                 if (!userRankUpdate(u, oldScore, updateDirection))
                     throw new Exception("Main: line 221 _ User's grade is not valid!");
@@ -240,7 +250,7 @@ public class MainTest3 {
         u.updateRegion();
         Event event = new Event(eventId, eventTitle);
         Competition competition = new Competition(competitionId, competitionTitle);
-        competition.addTask(p_id, lt, mark);
+        competition.updateTask(p_id, lt, mark);
         event.addCompetition(competition);
         u.addEvent(event);
         String region;

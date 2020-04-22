@@ -3,7 +3,7 @@ import org.bson.types.ObjectId;
 
 public class Task_desc {
     private ObjectId _id;
-    private int points;
+    private int score;
 
     public ObjectId get_id() {
         return _id;
@@ -13,19 +13,19 @@ public class Task_desc {
         this._id = _id;
     }
 
-    public int getPoints() {
-        return points;
+    public int getScore() {
+        return score;
     }
 
-    public void setPoints(int points) {
-        this.points = points;
+    public void setScore(int score) {
+        this.score = score;
     }
 
     @Override
     public String toString() {
         return "Task{" +
                 "_id=" + _id +
-                ", points=" + points +
+                ", score=" + score +
                 '}';
     }
 }

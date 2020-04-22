@@ -1,4 +1,6 @@
+import event_description.Competition_desc;
 import event_description.Event_desc;
+import event_description.Task_desc;
 import org.bson.BsonDocument;
 import org.bson.BsonString;
 import org.bson.types.ObjectId;
@@ -35,6 +37,11 @@ public class Main {
     private static String eventTitle;
     private static ObjectId competitionId;
     private static String competitionTitle;
+    private static ArrayList<int[]> competitionValidGrades;
+    private static ArrayList<String> competitionTitles;
+    private static HashMap<ObjectId, Integer> competitionIds;
+    private static ArrayList<HashMap<ObjectId, int[]>> competitionTasks;
+
 
     public static void main(String[] args) {
         //counter = 0;
@@ -44,8 +51,8 @@ public class Main {
                 .getResourceAsStream("bebras_evaluator.yml");
         Event_desc event_desc = yaml.load(inputStream);
         System.out.println(event_desc);
-        eventId = new ObjectId();
-        eventTitle = "e_bebras_17";
+        eventId =event_desc.get_id();
+        eventTitle = event_desc.getTitle();
         competitionId = new ObjectId();
         competitionTitle = "c_bebras17_3-4";
         System.out.println("____________ INITIALIZING ____________");
@@ -56,9 +63,9 @@ public class Main {
         mongoHandler.mongoClientInstance();
         mongoHandler.getCollections();
         System.out.println(ANSI_RED + "______________________________________");
-        //................................
-        Queue<Submission> submissions = mongoHandler.readSubmissions();
         System.out.println(ANSI_YELLOW + "______________________________________");
+        System.out.println(ANSI_GREEN + "______________________________________" + ANSI_RESET);
+
         HashMap<ObjectId, BsonDocument> problems = mongoHandler.readProblems();
         users = mongoHandler.getUsers();
         c_participants = new HashMap<>();
@@ -69,8 +76,26 @@ public class Main {
         listGrade_a = new ArrayList<>();
         listGrade_b = new ArrayList<>();
         //listGrade_Debug = new ArrayList<>();
-
-        System.out.println(ANSI_GREEN + "______________________________________" + ANSI_RESET);
+        competitionValidGrades = new ArrayList<>();
+        competitionTitles = new ArrayList<>();
+        competitionIds = new HashMap<>();
+        competitionTasks = new ArrayList<>();
+        for (Competition_desc competition_desc : event_desc.getCompetition_list()) {
+            competitionValidGrades.add(competition_desc.getValid_user().getGrade());
+            competitionIds.put(competition_desc.get_id(), competitionTitles.size()); //put the index in corresponding lists
+            competitionTitles.add(competition_desc.getTitle());
+            HashMap<ObjectId, int[]> hm = new HashMap<>();
+            for (Task_desc task_desc : competition_desc.getTask_list()){
+            //Iterator<Task_desc> iterator = competition_desc.getTask_list().iterator();
+            //while (iterator.hasNext()) {
+                int[] tmp = new int[3];
+                tmp[2] = task_desc.getScore();
+                hm.put(task_desc.get_id(), tmp);
+            }
+            competitionTasks.add(hm);
+        }
+        mongoHandler.getCompetitions();
+        Queue<Submission> submissions = mongoHandler.readSubmissions();
         checkSubmissions(problems, submissions);
         outputTest();
         program_ids();
@@ -83,16 +108,18 @@ public class Main {
         BsonDocument p;
         ObjectId p_id;
         ObjectId u_id;
+        ObjectId c_id;
         BsonDocument a;
         int lt;
         for (Submission s : submissions) {
             p_id = s.getPid();
             u_id = s.getU();
+            c_id = s.getC_id(); //get the competition id
             lt = s.getLt();
             a = s.getA();
+            //TODO: define sets of problems for competitions load the HashMap according to c_id
             p = problems.get(p_id); // get problem in the format of BsonDocument
             if (p == null) {
-                //TODO: try to catch the problem into the HashMap of problems from the db
                 System.err.println("Main line 90 -- Error: the problem did not found in the HashMap");
             } else {
                 type = p.getString("type").getValue();
@@ -115,13 +142,13 @@ public class Main {
                                 //possible results of checking the task: -1 ,0, 1 -> changed to 3 to ease up calculations
                                 // the grade coefficient will be applied when storing in the user result.
                                 if (uAns == right) {
-                                    userUpdate(u_id, p_id, lt, CORRECT_ANSWER);
+                                    userUpdate(c_id, u_id, p_id, lt, CORRECT_ANSWER);
                                 } else
-                                    userUpdate(u_id, p_id, lt, WRONG_ANSWER);
+                                    userUpdate(c_id, u_id, p_id, lt, WRONG_ANSWER);
                                 break;
                             }
                         }
-                        userUpdate(u_id, p_id, lt, NO_ANSWER);
+                        userUpdate(c_id, u_id, p_id, lt, NO_ANSWER);
                         break;
                     case BEBRAS_DYN:
                         //System.out.println("BEBRAS_DYN:\n");
@@ -142,22 +169,22 @@ public class Main {
                         r = 2 => either wrong or correct, user answer should be compared with the correct one */
                         switch(uAns){
                             case 0:
-                                userUpdate(u_id, p_id, lt, NO_ANSWER);
+                                userUpdate(c_id, u_id, p_id, lt, NO_ANSWER);
                                 break;
                             case -1:
-                                userUpdate(u_id, p_id, lt, WRONG_ANSWER);
+                                userUpdate(c_id, u_id, p_id, lt, WRONG_ANSWER);
                                 break;
                             case 1:
-                                userUpdate(u_id, p_id, lt, CORRECT_ANSWER);
+                                userUpdate(c_id, u_id, p_id, lt, CORRECT_ANSWER);
                                 break;
                             case 2:
                                 try {
                                     BsonString correct_answer = p.getString("correct_answer");
                                     BsonString user_answer = a.getString("s");
                                     if (correct_answer.equals(user_answer)){
-                                        userUpdate(u_id, p_id, lt, CORRECT_ANSWER);
+                                        userUpdate(c_id, u_id, p_id, lt, CORRECT_ANSWER);
                                     }else
-                                        userUpdate(u_id, p_id, lt, WRONG_ANSWER);
+                                        userUpdate(c_id, u_id, p_id, lt, WRONG_ANSWER);
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                     break;
@@ -177,7 +204,7 @@ public class Main {
         return true;
     }
 
-    private static void userUpdate(ObjectId u_id, ObjectId p_id, int lt, int mark) {
+    private static void userUpdate(ObjectId c_id, ObjectId u_id, ObjectId p_id, int lt, int mark) {
         User u;
         try {
             u = users.get(u_id);
@@ -191,7 +218,7 @@ public class Main {
         }
         try {
             if(u.getCompetition(competitionId) == null) {
-                userFirstTimePreparation(p_id, lt, mark, u);
+                userFirstTimePreparation(c_id, p_id, lt, mark, u);
             }else {
                 //DEBUG:........................................
 //                if(u.getRegion().equals("SPB")) {
@@ -221,21 +248,23 @@ public class Main {
 //                }
                 //....................................
                 int oldScore = u.getCompetition(competitionId).getScore();
-                u.getCompetition(competitionId).addTask(p_id, lt, mark);
+                u.getCompetition(competitionId).updateTask(p_id, lt, mark);
                 int updateDirection = u.getCompetition(competitionId).getScore() - oldScore;
                 if (!userRankUpdate(u, oldScore, updateDirection))
                     throw new Exception("Main: line 221 _ User's grade is not valid!");
             }
         } catch (Exception e) {
-            System.err.println(e.getLocalizedMessage());
+            System.err.println("Main, line 257: " + e.getLocalizedMessage());
         }
     }
 
-    private static void userFirstTimePreparation(ObjectId p_id, int lt, int mark, User u){
+    private static void userFirstTimePreparation(ObjectId c_id, ObjectId p_id, int lt, int mark, User u) throws Exception {
         u.updateRegion();
         Event event = new Event(eventId, eventTitle);
-        Competition competition = new Competition(competitionId, competitionTitle);
-        competition.addTask(p_id, lt, mark);
+        int index = competitionIds.get(c_id);
+        Competition competition = new Competition(c_id, competitionTitles.get(index));//todo add getcompetitine title to descroptor class
+        competition.setTasks(competitionTasks.get(index));
+        competition.updateTask(p_id, lt, mark);
         event.addCompetition(competition);
         u.addEvent(event);
         String region;
