@@ -1055,7 +1055,18 @@ public class MainTest {
 
     @Test
     public void mytest() {
-        int[] tmp = new int[3];
-        System.out.println(tmp[0]);
+        Random rand = new Random(1000);
+        int[] A = new int[6];
+        for(int i =0; i<A.length;i++)
+            A[i]= rand.nextInt(10);
+        int K = 13;
+        int[] B = new int[A.length];
+        System.arraycopy(A, 0, B, 0, A.length);
+        int k = K % A.length;
+        int[] tmp = new int[k];
+        System.arraycopy(A, A.length - k + 0, tmp, 0, k);
+        System.arraycopy(A, 0, A, 0 + k, A.length - k);
+        System.arraycopy(tmp, 0, A, 0, k);
+
     }
 }
