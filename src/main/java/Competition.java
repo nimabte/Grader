@@ -100,13 +100,13 @@ public class Competition {
             //if the saved answer is newer do nothing!
             if(ans[0]>=lt)
                 return;
-            updateScore(ans[1], mark);
+            updateScore(ans[1], mark * ans[2]);
             ans[0]=lt;
-            ans[1]=mark;
+            ans[1]=mark * ans[2];
             return;
         }
         // should not be null as all task now initialized
-        throw new Exception("Competition Class, line 100, not a valid problem for this competition!");
+        throw new Exception("Competition Class, line 109, not a valid problem for this competition!");
 //        ans = new int[2];
 //        ans[0]=lt;
 //        ans[1]=mark;
