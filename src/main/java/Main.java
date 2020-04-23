@@ -24,10 +24,15 @@ public class Main {
     public static HashMap<ObjectId, User> c_participants;
     public static HashMap<ObjectId, User> mapGrade_a;
     public static HashMap<ObjectId, User> mapGrade_b;
+    public static ArrayList<HashMap<ObjectId, User>> mapGrades;
+
     public static HashMap<String, Integer> mapRegion_b;
     public static HashMap<String, Integer> mapRegion_a;
+    public static ArrayList<HashMap<String, Integer>> mapRegions;
+
     public static ArrayList<ObjectId> listGrade_a;
     public static ArrayList<ObjectId> listGrade_b;
+    public static ArrayList<ArrayList<ObjectId>> listGrades;
     //..................................
     private static final String BEBRAS = "bebras";
     private static final String BEBRAS_DYN = "bebras-dyn";
@@ -40,7 +45,7 @@ public class Main {
     private static String eventTitle;
     //private static ObjectId competitionId;
     private static String competitionTitle;
-    private static ArrayList<int[]> competitionValidGrades;
+    private static ArrayList<Integer> competitionValidGrade;
     private static ArrayList<String> competitionTitles;
     private static HashMap<ObjectId, Integer> competitionIds;
     private static ArrayList<HashMap<ObjectId, int[]>> competitionTasks;
@@ -72,20 +77,26 @@ public class Main {
         HashMap<ObjectId, BsonDocument> problems = mongoHandler.readProblems();
         users = mongoHandler.getUsers();
         c_participants = new HashMap<>();
-        mapGrade_a = new HashMap<>();
-        mapGrade_b = new HashMap<>();
+        //mapGrade_a = new HashMap<>();
+        //mapGrade_b = new HashMap<>();
         mapRegion_a = new HashMap<>();
         mapRegion_b = new HashMap<>();
         listGrade_a = new ArrayList<>();
         listGrade_b = new ArrayList<>();
+        mapGrades = new ArrayList<>();
+        mapRegions = new ArrayList<>();
+        listGrades = new ArrayList<>();
         //listGrade_Debug = new ArrayList<>();
-        competitionValidGrades = new ArrayList<>();
+        competitionValidGrade = new ArrayList<>();
         competitionTitles = new ArrayList<>();
         competitionIds = new HashMap<>();
         competitionTasks = new ArrayList<>();
         for (Competition_desc competition_desc : event_desc.getCompetition_list()) {
-            competitionValidGrades.add(competition_desc.getValid_user().getGrade());
+            competitionValidGrade.add(competition_desc.getValid_user().getGrade());
             competitionIds.put(competition_desc.get_id(), competitionTitles.size()); //put the index in corresponding lists
+            mapGrades.add(new HashMap<>());
+            mapRegions.add(new HashMap<>());
+            listGrades.add(new ArrayList<>());
             competitionTitles.add(competition_desc.getTitle());
             HashMap<ObjectId, int[]> hm = new HashMap<>();
             for (Task_desc task_desc : competition_desc.getTask_list()){
@@ -268,36 +279,43 @@ public class Main {
         Competition competition = new Competition(c_id, competitionTitles.get(index));//todo add getcompetitine title to descroptor class
         //HashMap<ObjectId, int[]> kir;
         //kir = SerializationUtils.clone(competitionTasks.get(index));
+        competition.setValid_grade(competitionValidGrade.get(index));
         competition.setTasks(SerializationUtils.clone(competitionTasks.get(index)));
         competition.updateTask(p_id, lt, mark);
         event.addCompetition(competition);
         u.addEvent(event);
         String region;
         int regionLastRank;
-        if(u.getGrade() == competitionValidGrades.get(index)[0]) {
+        if(u.getGrade() == u.getCompetition(c_id).getValid_grade()) {
             //switch(u.getGrade()) {
 
             //case grade_b:
             //preparation for regional rank
             region = u.getRegion();
-            regionLastRank = mapRegion_b.getOrDefault(region, -1);
+            //regionLastRank = mapRegion_b.getOrDefault(region, -1);
+            regionLastRank = mapRegions.get(index).getOrDefault(region, -1);
             //if the region is not in our map (it is the first time)
             if (regionLastRank == -1) {
                 // the last position in this region is 1 the current user
-                mapRegion_b.put(region, 1);
+                //mapRegion_b.put(region, 1);
+                mapRegions.get(index).put(region, 1);
                 u.getCompetition(c_id).setRank_in_reg(1);
                 u.setRegionPosition(1);
             } else {
                 regionLastRank++;
-                mapRegion_b.put(region, regionLastRank);
+                //mapRegion_b.put(region, regionLastRank);
+                mapRegions.get(index).put(region, regionLastRank);
                 u.getCompetition(c_id).setRank_in_reg(regionLastRank);
                 u.setRegionPosition(regionLastRank);
             }
             //Update ranks
-            mapGrade_b.put(u.getId(), u);
-            listGrade_b.add(u.getId());
-            u.getCompetition(c_id).setRank_in_grade(listGrade_b.size());
-            u.setGradePosition(listGrade_b.size());
+            //mapGrade_b.put(u.getId(), u);
+            mapGrades.get(index).put(u.getId(), u);
+            //listGrade_b.add(u.getId());
+            listGrades.get(index).add(u.getId());
+            //u.getCompetition(c_id).setRank_in_grade(listGrade_b.size());
+            u.getCompetition(c_id).setRank_in_grade(listGrades.get(index).size());
+            u.setGradePosition(listGrades.get(index).size());
             //DEBUG:................................................
 //                int[] tmp = new int[5];
 //                tmp[0]=u.getCompetition(c_id).getScore();
@@ -307,42 +325,43 @@ public class Main {
 //                tmp[4] = u.getCompetition(c_id).getRank_in_reg();
 //                listGrade_Debug.add(tmp);
             //DEBUG:................................................
-            firstTimeRankUpdate(c_id, u, listGrade_b, mapGrade_b, region);
+            //firstTimeRankUpdate(c_id, u, listGrade_b, mapGrade_b, region);
+            firstTimeRankUpdate(c_id, u, listGrades.get(index), mapGrades.get(index), region);
             return;
-        }
-        if(u.getGrade() == competitionValidGrades.get(index)[1]) {
-            //case grade_a:
-            //preparation for regional rank
-            region = u.getRegion();
-            regionLastRank = mapRegion_a.getOrDefault(region, -1);
-            //if the region is not in our map (it is the first time)
-            if (regionLastRank == -1) {
-                // the last position in this region is 1 the current user
-                mapRegion_a.put(region, 1);
-                u.getCompetition(c_id).setRank_in_reg(1);
-                u.setRegionPosition(1);
-            } else {
-                regionLastRank++;
-                mapRegion_a.put(region, regionLastRank);
-                u.getCompetition(c_id).setRank_in_reg(regionLastRank);
-                u.setRegionPosition(regionLastRank);
-            }
-            //Update ranks
-            mapGrade_a.put(u.getId(), u);
-            listGrade_a.add(u.getId());
-            u.getCompetition(c_id).setRank_in_grade(listGrade_a.size());
-            u.setGradePosition(listGrade_a.size());
-            //DEBUG:................................................
-//                int[] tmp1 = new int[5];
-//                tmp1[0]=u.getCompetition(c_id).getScore();
-//                tmp1[1]=u.getGradePosition();
-//                tmp1[2]=u.getCompetition(c_id).getRank_in_grade();
-//                tmp1[3] = u.getRegionPosition();
-//                tmp1[4] = u.getCompetition(c_id).getRank_in_reg();
-//                listGrade_Debug.add(tmp1);
-            //.......................................................
-            firstTimeRankUpdate(c_id, u, listGrade_a, mapGrade_a, region);
-            return;
+//        }
+//        if(u.getGrade() == competitionValidGrade.get(index)[1]) {
+//            //case grade_a:
+//            //preparation for regional rank
+//            region = u.getRegion();
+//            regionLastRank = mapRegion_a.getOrDefault(region, -1);
+//            //if the region is not in our map (it is the first time)
+//            if (regionLastRank == -1) {
+//                // the last position in this region is 1 the current user
+//                mapRegion_a.put(region, 1);
+//                u.getCompetition(c_id).setRank_in_reg(1);
+//                u.setRegionPosition(1);
+//            } else {
+//                regionLastRank++;
+//                mapRegion_a.put(region, regionLastRank);
+//                u.getCompetition(c_id).setRank_in_reg(regionLastRank);
+//                u.setRegionPosition(regionLastRank);
+//            }
+//            //Update ranks
+//            mapGrade_a.put(u.getId(), u);
+//            listGrade_a.add(u.getId());
+//            u.getCompetition(c_id).setRank_in_grade(listGrade_a.size());
+//            u.setGradePosition(listGrade_a.size());
+//            //DEBUG:................................................
+////                int[] tmp1 = new int[5];
+////                tmp1[0]=u.getCompetition(c_id).getScore();
+////                tmp1[1]=u.getGradePosition();
+////                tmp1[2]=u.getCompetition(c_id).getRank_in_grade();
+////                tmp1[3] = u.getRegionPosition();
+////                tmp1[4] = u.getCompetition(c_id).getRank_in_reg();
+////                listGrade_Debug.add(tmp1);
+//            //.......................................................
+//            firstTimeRankUpdate(c_id, u, listGrade_a, mapGrade_a, region);
+//            return;
         }
         //default:
         throw new IllegalStateException("Main: line 327 _ Unexpected value for participant's grade: " + u.getGrade());
@@ -350,26 +369,28 @@ public class Main {
 
     private static boolean userRankUpdate(ObjectId c_id, User u, int oldScore, int updateDirection) {
         int index = competitionIds.get(c_id);
-        if(u.getGrade() == competitionValidGrades.get(index)[0]) {
+        if(u.getGrade() == u.getCompetition(c_id).getValid_grade()) {
             if(updateDirection > 0) {
-                upwardRankUpdate(c_id, u, listGrade_b, mapGrade_b, u.getRegion(), oldScore);
+                //upwardRankUpdate(c_id, u, listGrade_b, mapGrade_b, u.getRegion(), oldScore);
+                upwardRankUpdate(c_id, u, listGrades.get(index), mapGrades.get(index), u.getRegion(), oldScore);
                 return true;
             }
             if(updateDirection < 0){
-                downwardRankUpdate(c_id, u, listGrade_b, mapGrade_b, u.getRegion(), oldScore);
+                //downwardRankUpdate(c_id, u, listGrade_b, mapGrade_b, u.getRegion(), oldScore);
+                downwardRankUpdate(c_id, u, listGrades.get(index), mapGrades.get(index), u.getRegion(), oldScore);
             }
             return true;
         }
-        if(u.getGrade() == competitionValidGrades.get(index)[1]) {
-            if(updateDirection > 0) {
-                upwardRankUpdate(c_id, u, listGrade_a, mapGrade_a, u.getRegion(), oldScore);
-                return true;
-            }
-            if(updateDirection < 0){
-                downwardRankUpdate(c_id, u, listGrade_a, mapGrade_a, u.getRegion(), oldScore);
-            }
-            return true;
-        }
+//        if(u.getGrade() == competitionValidGrades.get(index)[1]) {
+//            if(updateDirection > 0) {
+//                upwardRankUpdate(c_id, u, listGrade_a, mapGrade_a, u.getRegion(), oldScore);
+//                return true;
+//            }
+//            if(updateDirection < 0){
+//                downwardRankUpdate(c_id, u, listGrade_a, mapGrade_a, u.getRegion(), oldScore);
+//            }
+//            return true;
+//        }
         return false;
     }
 
@@ -902,7 +923,8 @@ public class Main {
         String region;
         int c =0;
         for(int i =0; i<85; i++){
-            u = mapGrade_a.get(listGrade_a.get(i));
+            //u = mapGrade_b.get(listGrade_b.get(i));
+            u = mapGrades.get(0).get(listGrades.get(0).get(i));
             score = u.getCompetition(c_id).getScore();
             gR = u.getCompetition(c_id).getRank_in_grade();
             gP = u.getGradePosition();
@@ -919,7 +941,8 @@ public class Main {
         System.out.println("*********************** yeaaaaahhhhh ***********************************************************");
         c = 0;
         for(int i =0; i<85; i++){
-            u = mapGrade_b.get(listGrade_b.get(i));
+            //u = mapGrade_b.get(listGrade_b.get(i));
+            u = mapGrades.get(0).get(listGrades.get(0).get(i));
             score = u.getCompetition(c_id).getScore();
             gR = u.getCompetition(c_id).getRank_in_grade();
             gP = u.getGradePosition();
@@ -942,7 +965,8 @@ public class Main {
         String region;
         int c =0;
         for(int i =0; i<10; i++){
-            u = mapGrade_b.get(listGrade_b.get(i));
+            //u = mapGrade_b.get(listGrade_b.get(i));
+            u = mapGrades.get(0).get(listGrades.get(0).get(i));
             score = u.getCompetition(c_id).getScore();
             gR = u.getCompetition(c_id).getRank_in_grade();
             gP = u.getGradePosition();

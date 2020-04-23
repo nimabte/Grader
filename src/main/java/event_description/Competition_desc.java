@@ -8,6 +8,7 @@ public class Competition_desc {
     private ObjectId _id;
     private String title;
     private Valid_user valid_user;
+    private int check_submission_method;
     private ArrayList<Task_desc> task_list;
 
     public ObjectId get_id() {
@@ -24,6 +25,14 @@ public class Competition_desc {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public int getCheck_submission_method() {
+        return check_submission_method;
+    }
+
+    public void setCheck_submission_method(int check_submission_method) {
+        this.check_submission_method = check_submission_method;
     }
 
     public Valid_user getValid_user() {

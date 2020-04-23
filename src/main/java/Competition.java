@@ -11,6 +11,7 @@ public class Competition {
     private int score; //the overall performance of the participant in this competition.
     private int rank_in_grade; //rank in the organization
     private int rank_in_reg; //rank in the region
+    private int valid_grade;
     private HashMap<ObjectId, int[]> tasks; // to store the score of the participant for each task (task = evaluated answer to the problem with the same p-id)
 
 
@@ -36,7 +37,7 @@ public class Competition {
     public String getTitle() {
         return title;
     }
-    public void setScore(final String title) {
+    public void setTitle(final String title) {
         this.title = title;
     }
 
@@ -72,6 +73,14 @@ public class Competition {
     }
     public void setTasks(HashMap<ObjectId, int[]> tasks){
         this.tasks = tasks;
+    }
+
+    public int getValid_grade() {
+        return valid_grade;
+    }
+
+    public void setValid_grade(int valid_grade) {
+        this.valid_grade = valid_grade;
     }
 
     //returns the corresponding answer of user OR NULL if it does not exist/
