@@ -47,7 +47,9 @@ public class Main {
     private static String competitionTitle;
     private static ArrayList<Integer> competitionValidGrade;
     private static ArrayList<String> competitionTitles;
-    private static HashMap<ObjectId, Integer> competitionIds;
+    //private static HashMap<ObjectId, Integer> competitionIds;
+    private static HashMap<Integer, ObjectId> competitionIds_2;
+    private static HashMap<Integer, Integer> competitionGrades;
     private static ArrayList<HashMap<ObjectId, int[]>> competitionTasks;
 
 
@@ -89,15 +91,19 @@ public class Main {
         //listGrade_Debug = new ArrayList<>();
         competitionValidGrade = new ArrayList<>();
         competitionTitles = new ArrayList<>();
-        competitionIds = new HashMap<>();
+        //competitionIds = new HashMap<>();
+        competitionIds_2 = new HashMap<>();
+        competitionGrades = new HashMap<>();
         competitionTasks = new ArrayList<>();
         for (Competition_desc competition_desc : event_desc.getCompetition_list()) {
             competitionValidGrade.add(competition_desc.getValid_user().getGrade());
-            competitionIds.put(competition_desc.get_id(), competitionTitles.size()); //put the index in corresponding lists
+            //competitionIds.put(competition_desc.get_id(), competitionTitles.size()); //put the index in corresponding lists
+            competitionIds_2.put(competitionTitles.size(), competition_desc.get_id()); //put the index in corresponding lists
+            competitionGrades.put(competition_desc.getValid_user().getGrade(), competitionTitles.size()); //put the index in corresponding lists
+            competitionTitles.add(competition_desc.getTitle());
             mapGrades.add(new HashMap<>());
             mapRegions.add(new HashMap<>());
             listGrades.add(new ArrayList<>());
-            competitionTitles.add(competition_desc.getTitle());
             HashMap<ObjectId, int[]> hm = new HashMap<>();
             for (Task_desc task_desc : competition_desc.getTask_list()){
             //Iterator<Task_desc> iterator = competition_desc.getTask_list().iterator();
@@ -111,8 +117,12 @@ public class Main {
         mongoHandler.getCompetitions();
         Queue<Submission> submissions = mongoHandler.readSubmissions();
         checkSubmissions(problems, submissions);
-        outputTest(new ObjectId("5e9efd8c1813b22c476c788e"));
-        program_ids(new ObjectId("5e9efd8c1813b22c476c788e"));
+        System.out.println(ANSI_RED + "______________________________________");
+        System.out.println(ANSI_YELLOW + "______________________________________");
+        System.out.println(ANSI_GREEN + "______________________________________\n" + ANSI_RESET);
+        outputTest(new ObjectId("5e9efd8c1813b22c476c788e"),0);
+        outputTest(new ObjectId("5e9efd8c1813b22c476c788d"),2);
+        //program_ids(new ObjectId("5e9efd8c1813b22c476c788e"));
     }
 
     private static boolean checkSubmissions(HashMap<ObjectId, BsonDocument> problems, Queue<Submission> submissions) {
@@ -262,25 +272,38 @@ public class Main {
 //                }
                 //....................................
                 int oldScore = u.getCompetition(c_id).getScore();
-                u.getCompetition(c_id).updateTask(p_id, lt, mark);
+                u.getCompetition(c_id).updateTask(p_id, lt, mark); //for those who did not participate in their grade here will throw exception
                 int updateDirection = u.getCompetition(c_id).getScore() - oldScore;
                 if (!userRankUpdate(c_id, u, oldScore, updateDirection))
-                    throw new Exception("Main: line 221 _ User's grade is not valid!");
+                    throw new Exception("Main: line 275 _ User's grade is not valid!");
             }
         } catch (Exception e) {
-            System.err.println("Main, line 257: " + e.getLocalizedMessage());
+            System.err.println("Main, line 278: " + e.getMessage());
         }
     }
 
     private static void userFirstTimePreparation(ObjectId c_id, ObjectId p_id, int lt, int mark, User u) throws Exception {
+        //int index = competitionIds.get(c_id);
+        // i = current pointer in the list(user's at first)
+        // the expectation is to get users competition from the submission directly
+        // determining the competition using the grade can be fault prone
+        // as some user might participate in a different competition.
+        // in cas the we get the competition
+        int index = 0;
+        try {
+            index = competitionGrades.get(u.getGrade());
+        } catch (Exception ignore) {
+            System.err.println("Main, line 287: not valid user for this competition");
+        }
+        c_id = competitionIds_2.get(index);
         u.updateRegion();
-        Event event = new Event(eventId, eventTitle);
-        int index = competitionIds.get(c_id);
-        Competition competition = new Competition(c_id, competitionTitles.get(index));//todo add getcompetitine title to descroptor class
+        Event event = null;
+        event = new Event(eventId, eventTitle);
+        Competition competition = new Competition(c_id, competitionTitles.get(index));
         //HashMap<ObjectId, int[]> kir;
         //kir = SerializationUtils.clone(competitionTasks.get(index));
-        competition.setValid_grade(competitionValidGrade.get(index));
         competition.setTasks(SerializationUtils.clone(competitionTasks.get(index)));
+        competition.setValid_grade(competitionValidGrade.get(index));
         competition.updateTask(p_id, lt, mark);
         event.addCompetition(competition);
         u.addEvent(event);
@@ -368,7 +391,8 @@ public class Main {
     }
 
     private static boolean userRankUpdate(ObjectId c_id, User u, int oldScore, int updateDirection) {
-        int index = competitionIds.get(c_id);
+        //int index = competitionIds.get(c_id);
+        int index = competitionGrades.get(u.getGrade());
         if(u.getGrade() == u.getCompetition(c_id).getValid_grade()) {
             if(updateDirection > 0) {
                 //upwardRankUpdate(c_id, u, listGrade_b, mapGrade_b, u.getRegion(), oldScore);
@@ -713,7 +737,6 @@ public class Main {
 
     private static void downwardRankUpdate(ObjectId c_id, User u, ArrayList<ObjectId> listGrade, HashMap<ObjectId, User> mapGrade, String region, int oldScore) {
         int score = u.getCompetition(c_id).getScore();
-        // i = current pointer in the list(user's at first)
         int i = u.getGradePosition() - 1;
         User u_2;
         //............................................
@@ -915,16 +938,17 @@ public class Main {
         }
     }
 
-    private static void outputTest(ObjectId c_id) {
+    private static void outputTest(ObjectId c_id, int index) {
         User u;
         int score;
         int gR,gP;
         int rR,rP;
         String region;
         int c =0;
-        for(int i =0; i<85; i++){
+        System.out.println("Grade:" + competitionValidGrade.get(index));
+        for(int i =0; i<30; i++){
             //u = mapGrade_b.get(listGrade_b.get(i));
-            u = mapGrades.get(0).get(listGrades.get(0).get(i));
+            u = mapGrades.get(index).get(listGrades.get(index).get(i));
             score = u.getCompetition(c_id).getScore();
             gR = u.getCompetition(c_id).getRank_in_grade();
             gP = u.getGradePosition();
@@ -937,12 +961,15 @@ public class Main {
                 System.out.println("Student_ID: " + u.getId() + " | Score:" + score + " | Grade_Rank:" + gR + " | Grade_Position:" + gP + " | Region_Rank:" + rR + " | Region_Position: " + rP + " | Region:" + region);
 
         }
-        System.out.println("Count:" + c);
-        System.out.println("*********************** yeaaaaahhhhh ***********************************************************");
+        System.out.println("\"NVS\" Count = " + c);
+        System.out.println(ANSI_RED + "______________________________________");
+        System.out.println(ANSI_YELLOW + "______________________________________");
+        System.out.println(ANSI_GREEN + "______________________________________\n" + ANSI_RESET);
         c = 0;
-        for(int i =0; i<85; i++){
+        System.out.println("Grade:" + competitionValidGrade.get(index + 1));
+        for(int i =0; i<30; i++){
             //u = mapGrade_b.get(listGrade_b.get(i));
-            u = mapGrades.get(0).get(listGrades.get(0).get(i));
+            u = mapGrades.get(index+1).get(listGrades.get(index+1).get(i));
             score = u.getCompetition(c_id).getScore();
             gR = u.getCompetition(c_id).getRank_in_grade();
             gP = u.getGradePosition();
@@ -954,7 +981,10 @@ public class Main {
             }
                 System.out.println("Student_ID: " + u.getId() + " | Score:" + score + " | Grade_Rank:" + gR + " | Grade_Position:" + gP + " | Region_Rank:" + rR + " | Region_Position: " + rP + " | Region:" + region);
         }
-        System.out.println("Count:" + c);
+        System.out.println("\"NVS\" Count = " + c);
+        System.out.println(ANSI_RED + "______________________________________");
+        System.out.println(ANSI_YELLOW + "______________________________________");
+        System.out.println(ANSI_GREEN + "______________________________________\n" + ANSI_RESET);
     }
 
     private static void program_ids(ObjectId c_id) {

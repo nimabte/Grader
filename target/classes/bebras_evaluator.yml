@@ -40,7 +40,7 @@ competition_list:
             score: 3
 
     - title: "bebras17_4"
-      _id: 5e9efd8c1813b22c476c788b
+      _id: 5e9efd8c1813b22c476c788e
       valid_user:
           grade: 4
       check_submission_method: 0 # 0-> last submission _ 1 -> best submission 2 -> first submission
@@ -75,78 +75,79 @@ competition_list:
             score: 3
           - _id: 59edc8266276eea1911b14bf
             score: 3
-#
-#    - _id: 5e9efd8c1813b22c476c788c
-#      title: "bebras17_5"
-#      valid_user:
-#          grade: 5
-#      check_submission_method: 0 # 0-> last submission _ 1 -> best submission 2 -> first submission
-#      task_list: #problem:[pid, score]
-#          - _id: 59f1e1896276eea1911f39d6
-#            score: 3
-#          - _id: 59edc1da6276eea1911b05bb
-#            score: 3
-#          - _id: 59f56c186276eea19121cbeb
-#            score: 3
-#          - _id: 59ede03f6276eea1911b4ebc
-#            score: 3
-#          - _id: 59ea44dd6276ee04e9ad2bd5
-#            score: 3
-#          - _id: 59edd7c56276eea1911b32dc
-#            score: 3
-#          - _id: 59f206b86276eea1911f52dd
-#            score: 3
-#          - _id: 59f5923f6276eea19121ddc1
-#            score: 3
-#          - _id: 5a087dd7fdb1771e6fc07e0a
-#            score: 3
-#          - _id: 59f4b9b36276eea19121b830
-#            score: 3
-#          - _id: 59eeec8f6276eea1911bd71f
-#            score: 3
-#          - _id: 59f2e28a6276eea1911fc534
-#            score: 3
-#          - _id: 59f59fbc6276eea19121e974
-#            score: 3
-#          - _id: 59edc8266276eea1911b14bf
-#            score: 3
-#          - _id: 59f2c24a6276eea1911f9372
-#            score: 3
-#    - _id: 5e9efd8c1813b22c476c788d
-#        title: "bebras17_6"
-#        valid_user:
-#          grade: 6
-#        check_submission_method: 0 # 0-> last submission _ 1 -> best submission 2 -> first submission
-#        task_list: #problem:[pid, score]
-#          - _id: 59f1e1896276eea1911f39d6
-#            score: 3
-#          - _id: 59edc1da6276eea1911b05bb
-#            score: 3
-#          - _id: 59f56c186276eea19121cbeb
-#            score: 3
-#          - _id: 59ede03f6276eea1911b4ebc
-#            score: 3
-#          - _id: 59ea44dd6276ee04e9ad2bd5
-#            score: 3
-#          - _id: 59edd7c56276eea1911b32dc
-#            score: 3
-#          - _id: 59f206b86276eea1911f52dd
-#            score: 3
-#          - _id: 59f5923f6276eea19121ddc1
-#            score: 3
-#          - _id: 5a087dd7fdb1771e6fc07e0a
-#            score: 3
-#          - _id: 59f4b9b36276eea19121b830
-#            score: 3
-#          - _id: 59eeec8f6276eea1911bd71f
-#            score: 3
-#          - _id: 59f2e28a6276eea1911fc534
-#            score: 3
-#          - _id: 59f59fbc6276eea19121e974
-#            score: 3
-#          - _id: 59edc8266276eea1911b14bf
-#            score: 3
-#          - _id: 59f2c24a6276eea1911f9372
-#            score: 3
+
+    - title: "bebras17_5"
+      _id: 5e9efd8c1813b22c476c788d
+      valid_user:
+          grade: 5
+      check_submission_method: 0 # 0-> last submission _ 1 -> best submission 2 -> first submission
+      task_list: #problem:[pid, score]
+          - _id: 59f1e1896276eea1911f39d6
+            score: 3
+          - _id: 59edc1da6276eea1911b05bb
+            score: 3
+          - _id: 59f56c186276eea19121cbeb
+            score: 3
+          - _id: 59ede03f6276eea1911b4ebc
+            score: 3
+          - _id: 59ea44dd6276ee04e9ad2bd5
+            score: 3
+          - _id: 59edd7c56276eea1911b32dc
+            score: 3
+          - _id: 59f206b86276eea1911f52dd
+            score: 3
+          - _id: 59f5923f6276eea19121ddc1
+            score: 3
+          - _id: 5a087dd7fdb1771e6fc07e0a
+            score: 3
+          - _id: 59f4b9b36276eea19121b830
+            score: 3
+          - _id: 59eeec8f6276eea1911bd71f
+            score: 3
+          - _id: 59f2e28a6276eea1911fc534
+            score: 3
+          - _id: 59f59fbc6276eea19121e974
+            score: 3
+          - _id: 59edc8266276eea1911b14bf
+            score: 3
+          - _id: 59f2c24a6276eea1911f9372
+            score: 3
+
+    - title: "bebras17_6"
+      _id: 5e9efd8c1813b22c476c788d
+      valid_user:
+          grade: 6
+      check_submission_method: 0 # 0-> last submission _ 1 -> best submission 2 -> first submission
+      task_list: #problem:[pid, score]
+          - _id: 59f1e1896276eea1911f39d6
+            score: 3
+          - _id: 59edc1da6276eea1911b05bb
+            score: 3
+          - _id: 59f56c186276eea19121cbeb
+            score: 3
+          - _id: 59ede03f6276eea1911b4ebc
+            score: 3
+          - _id: 59ea44dd6276ee04e9ad2bd5
+            score: 3
+          - _id: 59edd7c56276eea1911b32dc
+            score: 3
+          - _id: 59f206b86276eea1911f52dd
+            score: 3
+          - _id: 59f5923f6276eea19121ddc1
+            score: 3
+          - _id: 5a087dd7fdb1771e6fc07e0a
+            score: 3
+          - _id: 59f4b9b36276eea19121b830
+            score: 3
+          - _id: 59eeec8f6276eea1911bd71f
+            score: 3
+          - _id: 59f2e28a6276eea1911fc534
+            score: 3
+          - _id: 59f59fbc6276eea19121e974
+            score: 3
+          - _id: 59edc8266276eea1911b14bf
+            score: 3
+          - _id: 59f2c24a6276eea1911f9372
+            score: 3
 
 participant_list:
