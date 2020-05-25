@@ -58,7 +58,7 @@ public class Main {
         Yaml yaml = new Yaml(new Constructor(Event_desc.class));
         InputStream inputStream = Main.class
                 .getClassLoader()
-                .getResourceAsStream("bebras_evaluator.yml");
+                .getResourceAsStream("bebras_evaluator_3.yml");
         Event_desc event_desc = yaml.load(inputStream);
         System.out.println(event_desc);
         eventId =event_desc.get_id();
@@ -116,13 +116,24 @@ public class Main {
         }
         mongoHandler.getCompetitions();
         Queue<Submission> submissions = mongoHandler.readSubmissions();
+        long start = System.currentTimeMillis();
         checkSubmissions(problems, submissions);
+        ObjectId c_id = new ObjectId("5e9efd8c1813b22c476c788c");
+        for(ObjectId u_id : listGrades.get(4)) {
+            User u = users.get(u_id);
+            u.getCompetition(c_id).setScore(listGrades.get(4).size() - u.getCompetition(c_id).getRank_in_grade());
+        }
+        long end = System.currentTimeMillis();
+        long elapsedTime = end - start;
+
         System.out.println(ANSI_RED + "______________________________________");
+        System.out.println(ANSI_GREEN + "ellapsed time:"+ elapsedTime);
         System.out.println(ANSI_YELLOW + "______________________________________");
         System.out.println(ANSI_GREEN + "______________________________________\n" + ANSI_RESET);
-        outputTest(new ObjectId("5e9efd8c1813b22c476c788e"),0);
-        outputTest(new ObjectId("5e9efd8c1813b22c476c788d"),2);
-        //program_ids(new ObjectId("5e9efd8c1813b22c476c788e"));
+     //   outputTest(new ObjectId("5e9efd8c1813b22c476c788e"),0);
+     //   outputTest(new ObjectId("5e9efd8c1813b22c476c788d"),2);
+     //   program_ids(new ObjectId("5e9efd8c1813b22c476c788d"));
+        CTE_output();
     }
 
     private static boolean checkSubmissions(HashMap<ObjectId, BsonDocument> problems, Queue<Submission> submissions) {
@@ -142,48 +153,55 @@ public class Main {
             lt = s.getLt();
             a = s.getA();
             //TODO: define sets of problems for competitions load the HashMap according to c_id
-            p = problems.get(p_id); // get problem in the format of BsonDocument
-            if (p == null) {
-                System.err.println("Main line 90 -- Error: the problem did not found in the HashMap");
-            } else {
-                type = p.getString("type").getValue();
-                switch (type) {
-                    case BEBRAS:
-                        //System.out.println("BEBRAS:\n");
-                        // tru answer of the task
-                        int right;
-                        try {
-                            right = p.getInt32("right").getValue();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            break;
-                        }
-                        // user's answer
-                        if (a.isInt32("a")) { // check if an integer answer with the key 'a' exist.
-                            //int uAns = a.getInt32("a", new BsonInt32(-1)).getValue();
-                            int uAns = a.getInt32("a").getValue();
-                            if (uAns != -1) {
-                                //possible results of checking the task: -1 ,0, 1 -> changed to 3 to ease up calculations
-                                // the grade coefficient will be applied when storing in the user result.
-                                if (uAns == right) {
-                                    userUpdate(c_id, u_id, p_id, lt, CORRECT_ANSWER);
-                                } else
-                                    userUpdate(c_id, u_id, p_id, lt, WRONG_ANSWER);
+            if(c_id.equals(new ObjectId("5e9efd8c1813b22c476c788c"))) {
+                if(u_id.equals(new ObjectId("5a008da86276eea191295965"))){
+                    int t;
+                    t = 5;
+                }
+                evaluate_CTE(p_id, u_id, c_id, lt, a);
+            }else {
+                p = problems.get(p_id); // get problem in the format of BsonDocument
+                if (p == null) {
+                    System.err.println("Main line 90 -- Error: the problem did not found in the HashMap");
+                } else {
+                    type = p.getString("type").getValue();
+                    switch (type) {
+                        case BEBRAS:
+                            //System.out.println("BEBRAS:\n");
+                            // tru answer of the task
+                            int right;
+                            try {
+                                right = p.getInt32("right").getValue();
+                            } catch (Exception e) {
+//                            e.printStackTrace();
                                 break;
                             }
-                        }
-                        userUpdate(c_id, u_id, p_id, lt, NO_ANSWER);
-                        break;
-                    case BEBRAS_DYN:
-                        //System.out.println("BEBRAS_DYN:\n");
-                        int uAns;
-                        try {
-                            uAns = a.getInt32("r").getValue();
-                        } catch (Exception e) {
-                            System.err.println(ANSI_YELLOW + e.getLocalizedMessage() + ANSI_RED);
-                            //System.err.println("pid:" + p_id + ", u_id:"+ u_id + ", lt:"+ lt + ANSI_RED);
+                            // user's answer
+                            if (a.isInt32("a")) { // check if an integer answer with the key 'a' exist.
+                                //int uAns = a.getInt32("a", new BsonInt32(-1)).getValue();
+                                int uAns = a.getInt32("a").getValue();
+                                if (uAns != -1) {
+                                    //possible results of checking the task: -1 ,0, 1 -> changed to 3 to ease up calculations
+                                    // the grade coefficient will be applied when storing in the user result.
+                                    if (uAns == right) {
+                                        userUpdate(c_id, u_id, p_id, lt, CORRECT_ANSWER);
+                                    } else
+                                        userUpdate(c_id, u_id, p_id, lt, WRONG_ANSWER);
+                                    break;
+                                }
+                            }
+                            userUpdate(c_id, u_id, p_id, lt, NO_ANSWER);
                             break;
-                        }
+                        case BEBRAS_DYN:
+                            //System.out.println("BEBRAS_DYN:\n");
+                            int uAns;
+                            try {
+                                uAns = a.getInt32("r").getValue();
+                            } catch (Exception e) {
+                                //System.err.println(ANSI_YELLOW + e.getLocalizedMessage() + ANSI_RED);
+                                //System.err.println("pid:" + p_id + ", u_id:"+ u_id + ", lt:"+ lt + ANSI_RED);
+                                break;
+                            }
 
                         /*
                         r = null => program error -> do nothing
@@ -191,41 +209,77 @@ public class Main {
                         r = -1 => wrong answer
                         r = 1 => correct answer
                         r = 2 => either wrong or correct, user answer should be compared with the correct one */
-                        switch(uAns){
-                            case 0:
-                                userUpdate(c_id, u_id, p_id, lt, NO_ANSWER);
-                                break;
-                            case -1:
-                                userUpdate(c_id, u_id, p_id, lt, WRONG_ANSWER);
-                                break;
-                            case 1:
-                                userUpdate(c_id, u_id, p_id, lt, CORRECT_ANSWER);
-                                break;
-                            case 2:
-                                try {
-                                    BsonString correct_answer = p.getString("correct_answer");
-                                    BsonString user_answer = a.getString("s");
-                                    if (correct_answer.equals(user_answer)){
-                                        userUpdate(c_id, u_id, p_id, lt, CORRECT_ANSWER);
-                                    }else
-                                        userUpdate(c_id, u_id, p_id, lt, WRONG_ANSWER);
-                                } catch (Exception e) {
-                                    e.printStackTrace();
+                            switch (uAns) {
+                                case 0:
+                                    userUpdate(c_id, u_id, p_id, lt, NO_ANSWER);
                                     break;
-                                }
-                                break;
-                            default:
-                                throw new IllegalStateException("Main: line 154 _ Unexpected value for uAns: " + uAns);
-                        }
+                                case -1:
+                                    userUpdate(c_id, u_id, p_id, lt, WRONG_ANSWER);
+                                    break;
+                                case 1:
+                                    userUpdate(c_id, u_id, p_id, lt, CORRECT_ANSWER);
+                                    break;
+                                case 2:
+                                    try {
+                                        BsonString correct_answer = p.getString("correct_answer");
+                                        BsonString user_answer = a.getString("s");
+                                        if (correct_answer.equals(user_answer)) {
+                                            userUpdate(c_id, u_id, p_id, lt, CORRECT_ANSWER);
+                                        } else
+                                            userUpdate(c_id, u_id, p_id, lt, WRONG_ANSWER);
+                                    } catch (Exception e) {
+                                        //e.printStackTrace();
+                                        break;
+                                    }
+                                    break;
+                                default:
+                                    //throw new IllegalStateException("Main: line 154 _ Unexpected value for uAns: " + uAns);
+                            }
 
-                        break;
-                    default:
-                        throw new IllegalStateException("Main: line 159 _ Unexpected value fpr problem type: " + type);
+                            break;
+                        default:
+                            //throw new IllegalStateException("Main: line 159 _ Unexpected value fpr problem type: " + type);
+                    }
                 }
             }
-
         }
         return true;
+    }
+
+    private static void evaluate_CTE(ObjectId p_id, ObjectId u_id, ObjectId c_id, int lt, BsonDocument a) {
+        int length, max;
+        try {
+            length = a.getInt32("l").getValue();
+            max = a.getInt32("m").getValue();
+        } catch (Exception e) {
+            return;
+        }
+        User u;
+        try {
+            u = users.get(u_id);
+            if(u == null) {
+                return;
+            }
+        } catch (Exception e) {
+            return;
+        }
+        try {
+            if(u.getCompetition(c_id) == null) {
+                CTEFirstTimePreparation(c_id, p_id, length, max, u);
+            }else {
+                int oldMax = u.getCompetition(c_id).getTaskAns(p_id); // Ans here means max
+                int oldLength = u.getCompetition(c_id).getTaskLt(p_id); //Lt here means length
+                if(oldLength > length )
+                    return;
+                if(oldLength == length && max >= oldMax)
+                    return;
+                u.getCompetition(c_id).updateTask(p_id, length, max);
+                //userRankUpdate(c_id, u, oldlength, 1);// always best so it is always upward
+                upwardCTERankUpdate(c_id, p_id, u, listGrades.get(4), mapGrades.get(4), u.getRegion(), length, max, oldLength, oldMax);
+            }
+        } catch (Exception e) {
+            // System.err.println("Main, line 278: " + e.getMessage());
+        }
     }
 
     private static void userUpdate(ObjectId c_id, ObjectId u_id, ObjectId p_id, int lt, int mark) {
@@ -233,11 +287,12 @@ public class Main {
         try {
             u = users.get(u_id);
             if(u == null) {
-                //String msg = "User no found in Hashmap!";
-                throw new Exception(" Main: Line 180 _ User not found in Hashmap!");
+                //String msg = "User not found in Hashmap!";
+                return;
+                //throw new Exception(" Main: Line 180 _ User not found in Hashmap!");
             }
         } catch (Exception e) {
-            System.err.println(ANSI_YELLOW + e.getLocalizedMessage() + ANSI_RED);
+            //System.err.println(ANSI_YELLOW + e.getLocalizedMessage() + ANSI_RED);
             return;
         }
         try {
@@ -275,10 +330,11 @@ public class Main {
                 u.getCompetition(c_id).updateTask(p_id, lt, mark); //for those who did not participate in their grade here will throw exception
                 int updateDirection = u.getCompetition(c_id).getScore() - oldScore;
                 if (!userRankUpdate(c_id, u, oldScore, updateDirection))
-                    throw new Exception("Main: line 275 _ User's grade is not valid!");
+                    return;
+                    //throw new Exception("Main: line 275 _ User's grade is not valid!");
             }
         } catch (Exception e) {
-            System.err.println("Main, line 278: " + e.getMessage());
+           // System.err.println("Main, line 278: " + e.getMessage());
         }
     }
 
@@ -293,7 +349,7 @@ public class Main {
         try {
             index = competitionGrades.get(u.getGrade());
         } catch (Exception ignore) {
-            System.err.println("Main, line 287: not valid user for this competition");
+            //System.err.println("Main, line 287: not valid user for this competition");
         }
         c_id = competitionIds_2.get(index);
         u.updateRegion();
@@ -387,7 +443,7 @@ public class Main {
 //            return;
         }
         //default:
-        throw new IllegalStateException("Main: line 327 _ Unexpected value for participant's grade: " + u.getGrade());
+        //throw new IllegalStateException("Main: line 327 _ Unexpected value for participant's grade: " + u.getGrade());
     }
 
     private static boolean userRankUpdate(ObjectId c_id, User u, int oldScore, int updateDirection) {
@@ -958,7 +1014,7 @@ public class Main {
             if(region.equals("NVS")) {
                 c++;
             }
-                System.out.println("Student_ID: " + u.getId() + " | Score:" + score + " | Grade_Rank:" + gR + " | Grade_Position:" + gP + " | Region_Rank:" + rR + " | Region_Position: " + rP + " | Region:" + region);
+            System.out.println("Student_ID: " + u.getId() + " | Score:" + score + " | Grade_Rank:" + gR + " | Grade_Position:" + gP + " | Region_Rank:" + rR + " | Region_Position: " + rP + " | Region:" + region);
 
         }
         System.out.println("\"NVS\" Count = " + c);
@@ -967,7 +1023,7 @@ public class Main {
         System.out.println(ANSI_GREEN + "______________________________________\n" + ANSI_RESET);
         c = 0;
         System.out.println("Grade:" + competitionValidGrade.get(index + 1));
-        for(int i =0; i<30; i++){
+        for(int i =0; i<40; i++){
             //u = mapGrade_b.get(listGrade_b.get(i));
             u = mapGrades.get(index+1).get(listGrades.get(index+1).get(i));
             score = u.getCompetition(c_id).getScore();
@@ -979,7 +1035,7 @@ public class Main {
             if(region.equals("NVS")) {
                 c++;
             }
-                System.out.println("Student_ID: " + u.getId() + " | Score:" + score + " | Grade_Rank:" + gR + " | Grade_Position:" + gP + " | Region_Rank:" + rR + " | Region_Position: " + rP + " | Region:" + region);
+            System.out.println("Student_ID: " + u.getId() + " | Score:" + score + " | Grade_Rank:" + gR + " | Grade_Position:" + gP + " | Region_Rank:" + rR + " | Region_Position: " + rP + " | Region:" + region);
         }
         System.out.println("\"NVS\" Count = " + c);
         System.out.println(ANSI_RED + "______________________________________");
@@ -989,28 +1045,311 @@ public class Main {
 
     private static void program_ids(ObjectId c_id) {
         User u;
+        int grade;
         int score;
         int gR,gP;
         int rR,rP;
         String region;
         int c =0;
-        for(int i =0; i<10; i++){
+        for(int i =0; i<35; i++){
             //u = mapGrade_b.get(listGrade_b.get(i));
-            u = mapGrades.get(0).get(listGrades.get(0).get(i));
+            u = mapGrades.get(2).get(listGrades.get(2).get(i));
             score = u.getCompetition(c_id).getScore();
             gR = u.getCompetition(c_id).getRank_in_grade();
             gP = u.getGradePosition();
             rR = u.getCompetition(c_id).getRank_in_reg();
             rP = u.getRegionPosition();
             region = u.getRegion();
-            if(region.equals("NVS"))
+            grade = u.getGrade();
+            if(region.equals("SPB")) {
                 c++;
-            System.out.println("Student_ID: " + u.getId() + " | Score:" + score + " | Grade_Rank:" + gR + " | Grade_Position:" + gP + " | Region_Rank:" + rR + " | Region_Position: " + rP + " | Region:" + region);
-            u.getCompetition(c_id).getTasks().forEach((key, val)->
-                    System.out.print( "pid: " + key + " ,ans: " + val[1] + " | "));
-            System.out.println();
+                System.out.println("Student_ID: " + u.getId() + " | Grade:" + grade + " | Score:" + score + " | Region:" + region + " | Region_Rank:" + rR + " | Region_Position: " + rP + " | Grade_Rank:" + gR + " | Grade_Position:" + gP);
+                //System.out.println(new StringBuilder().append(u.getId()).append(grade).append(score).append(region).append(rR).append(rP).append(+gR).append(gP).toString());
+//                u.getCompetition(c_id).getTasks().forEach((key, val) ->
+//                        System.out.print("pid: " + key + " ,ans: " + val[1] + " | "));
+//                System.out.println();
+            }
         }
         System.out.println("Count:" + c);
         System.out.println("*********************** yeaaaaahhhhh ***********************************************************");
+    }
+
+    //CTE
+    private static void CTEFirstTimePreparation(ObjectId c_id, ObjectId p_id, int length, int max, User u) throws Exception {
+        //int index = competitionIds.get(c_id);
+        // i = current pointer in the list(user's at first)
+        // the expectation is to get users competition from the submission directly
+        // determining the competition using the grade can be fault prone
+        // as some user might participate in a different competition.
+        // in case the we get the competition
+        int index = 4; //CTE index
+        u.updateRegion();
+        Event event = new Event(eventId, eventTitle);
+        Competition competition = new Competition(c_id, competitionTitles.get(index));
+        competition.setTasks(SerializationUtils.clone(competitionTasks.get(index)));
+        competition.updateTask(p_id, length, max);
+        event.addCompetition(competition);
+        u.addEvent(event);
+        String region;
+        int regionLastRank;
+        region = u.getRegion();
+        regionLastRank = mapRegions.get(index).getOrDefault(region, -1);
+        //if the region is not in our map (it is the first time)
+        if (regionLastRank == -1) {
+            // the last position in this region is 1 the current user
+            //mapRegion_b.put(region, 1);
+            mapRegions.get(index).put(region, 1);
+            u.getCompetition(c_id).setRank_in_reg(1);
+            u.setRegionPosition(1);
+        } else {
+            regionLastRank++;
+            //mapRegion_b.put(region, regionLastRank);
+            mapRegions.get(index).put(region, regionLastRank);
+            u.getCompetition(c_id).setRank_in_reg(regionLastRank);
+            u.setRegionPosition(regionLastRank);
+        }
+        //Update ranks
+        //mapGrade_b.put(u.getId(), u);
+        mapGrades.get(index).put(u.getId(), u);
+        //listGrade_b.add(u.getId());
+        listGrades.get(index).add(u.getId());
+        u.getCompetition(c_id).setRank_in_grade(listGrades.get(index).size());
+        u.setGradePosition(listGrades.get(index).size());
+        firstTimeCTERankUpdate(c_id, p_id, u, listGrades.get(index), mapGrades.get(index), region,  length, max);
+    }
+
+    private static void firstTimeCTERankUpdate(ObjectId c_id, ObjectId p_id, User u, ArrayList<ObjectId> listGrade, HashMap<ObjectId, User> mapGrade, String region, int length, int max) {
+        // i = current pointer in the list(user's at first)
+        int i = u.getGradePosition() - 1;
+        User u_2;
+        //............................................
+        //new user, his position and rank is the last right now
+        //....................................
+        // as we are going upward we should check not to be the first!
+        if(i > 0) { //if the pointer is not on the first user
+            u_2 = mapGrade.get(listGrade.get(i - 1));
+            /* change the position and ranks as much as needed*/
+            while((length > u_2.getCompetition(c_id).getTaskLt(p_id)) || ((length == u_2.getCompetition(c_id).getTaskLt(p_id)) && (max < u_2.getCompetition(c_id).getTaskAns(p_id)))){
+                listGrade.set(i, u_2.getId()); // put u-2 at the current pointer
+                u_2.getCompetition(c_id).updateRank_in_grade(1); // his rank now is one more! of course!
+                u_2.updateGradePosition(1); // the same store for the position
+                if (u_2.getRegion().equals(region)) {
+                    u_2.getCompetition(c_id).updateRank_in_reg(1);
+                    u_2.updateRegionPosition(1);
+                    u.getCompetition(c_id).updateRank_in_reg(-1);
+                    u.updateRegionPosition(-1);
+                }
+                // decreasing the pointer (grade position)
+                i--;
+                // now the rank in grade also should be declined
+                u.getCompetition(c_id).updateRank_in_grade(-1);
+                //again, at current position rank and position should be the same:
+                //Assert.assertEquals(i + 1, u.getCompetition(c_id).getRank_in_grade());
+                if (i == 0) {
+                    //this user is first! congratulations!
+                    listGrade.set(i, u.getId());
+                    u.setGradePosition(i + 1);
+                    return;
+                }
+                u_2 = mapGrade.get(listGrade.get(i - 1));
+            }
+            //ops, someone has a score equal or more than our user's
+            /* again if the new score is the same with the one's score who
+               stands just before, we need to take the current position as
+               users position and the rank of u-2 as his new rank!*/
+            if(length == u_2.getCompetition(c_id).getTaskLt(p_id) &&  max == u_2.getCompetition(c_id).getTaskAns(p_id)){
+                listGrade.set(i, u.getId());
+                u.setGradePosition(i + 1);
+                u.getCompetition(c_id)
+                        .setRank_in_grade(u_2.getCompetition(c_id).getRank_in_grade());
+                //for regional ranking we need to check the region of people with the same score
+                //the new regional rank shod be the same. or the same as position if we did not find any.
+                if(u_2.getRegion().equals(region)) {
+                    u.getCompetition(c_id)
+                            .setRank_in_reg(u_2.getCompetition(c_id).getRank_in_reg());
+                }else{
+                    for(int j=i-2; j>=0; j--){
+                        u_2 = mapGrade.get(listGrade.get(j));
+                        if(length != u_2.getCompetition(c_id).getTaskLt(p_id) || max != u_2.getCompetition(c_id).getTaskAns(p_id)) {
+                            //u.getCompetition(c_id).setRank_in_reg(u.getRegionPosition());
+                            break;
+                        }
+                        if(u_2.getRegion().equals(region)){
+                            u.getCompetition(c_id)
+                                    .setRank_in_reg(u_2.getCompetition(c_id).getRank_in_reg());
+                            break;
+                        }
+                    }
+                }
+            }
+            /* just as before if the new score is less than what is just before,
+               we need to take the current position as user's position
+               rank should be automatically the same as the position*/
+            else { //if(score < u_2.getCompetition(c_id).getScore()){
+                listGrade.set(i, u.getId());
+                u.setGradePosition(i + 1);
+                //no need to set rank in grade!
+                //u.getCompetition(c_id).setRank_in_reg(regionRank);
+                //u.setRegionPosition(regionRank);
+            }
+        }
+        // here our use is already the first place, all his rank are already 1.
+        // we have already increased the rank of other with the same previous score!
+        // nothing to do then!
+    }
+
+    private static void upwardCTERankUpdate(ObjectId c_id, ObjectId p_id, User u, ArrayList<ObjectId> listGrade, HashMap<ObjectId, User> mapGrade, String region, int length, int max, int oldLength, int oldMax) {
+        // i = current pointer in the list(user's at first)
+        int i = u.getGradePosition() - 1;
+        User u_2;
+        //............................................
+        //to start with I will bring the position to the first place
+        //among all who have the same score.
+        //....................................
+        //update the rank and position of users with the same score (as the old score)
+        // for those at the bottom, this is being done by adding 1 to their ranks, leaving their position unchanged.
+        if(i < listGrade.size() - 1) { //if the pointer is not on the last user
+            for (int j = i; j < listGrade.size() - 1; j++) {
+                u_2 = mapGrade.get(listGrade.get(j + 1));
+                if(u_2.getCompetition(c_id).getTaskLt(p_id) != oldLength || oldMax != u_2.getCompetition(c_id).getTaskAns(p_id))
+                    break;
+                //n change in position
+                u_2.getCompetition(c_id).updateRank_in_grade(1);
+                if(u_2.getRegion().equals(region)){
+                    u_2.getCompetition(c_id).updateRank_in_reg(1);
+                    //u_2.updateRegionPosition(1);
+                }
+            }
+        }
+        // as we are going upward we should check not to be the first!
+        if(i > 0) { //if the pointer is not on the first user
+            u_2 = mapGrade.get(listGrade.get(i - 1));
+            // now move the user to the top among those who had the same score
+            while ((oldLength == u_2.getCompetition(c_id).getTaskLt(p_id)) && (oldMax == u_2.getCompetition(c_id).getTaskAns(p_id))) {
+                listGrade.set(i, u_2.getId());
+                u_2.getCompetition(c_id).updateRank_in_grade(1);
+                u_2.updateGradePosition(1);
+                if(u_2.getRegion().equals(region)){
+                    u_2.getCompetition(c_id).updateRank_in_reg(1);
+                    u_2.updateRegionPosition(1);
+                    u.updateRegionPosition(-1);
+                    //regionRank --; the same as old score -> all rank are the same now
+                }
+                // decreasing the pointer (grade position)
+                // now gradeRank grade rank should not be changed as we are moving through the same rank
+                i--;
+                if (i == 0) {
+                    //first place, waw!
+                    listGrade.set(i, u.getId());
+                    u.setGradePosition(i + 1);
+                    //no need to set rank in grade!
+                    return;
+                }
+                u_2 = mapGrade.get(listGrade.get(i - 1));
+            }
+            //Now the user position should be the first among those who have the same score as he did
+            //then at current position rank and position should be the same:
+            /* change the position and ranks as much as needed*/
+            while((length > u_2.getCompetition(c_id).getTaskLt(p_id)) || ((length == u_2.getCompetition(c_id).getTaskLt(p_id)) && (max < u_2.getCompetition(c_id).getTaskAns(p_id)))){
+                listGrade.set(i, u_2.getId()); // put u-2 at the current pointer
+                u_2.getCompetition(c_id).updateRank_in_grade(1); // his rank now is one more! of course!
+                u_2.updateGradePosition(1); // the same store for the position
+                if (u_2.getRegion().equals(region)) {
+                    u_2.getCompetition(c_id).updateRank_in_reg(1);
+                    u_2.updateRegionPosition(1);
+                    u.getCompetition(c_id).updateRank_in_reg(-1);
+                    u.updateRegionPosition(-1);
+                }
+                //DEBUG:........................................................
+//                int[] tmp = new int[5];
+//                tmp[0] = u_2.getCompetition(c_id).getScore();
+//                tmp[1] = u_2.getGradePosition();
+//                tmp[2] = u_2.getCompetition(c_id).getRank_in_grade();
+//                tmp[3] = u_2.getRegionPosition();
+//                tmp[4] = u_2.getCompetition(c_id).getRank_in_reg();
+//                listGrade_Debug.set(i, tmp);
+                //..............................................................
+                // decreasing the pointer (grade position)
+                i--;
+                // now the rank in grade also should be declined
+                u.getCompetition(c_id).updateRank_in_grade(-1);
+                //again, at current position rank and position should be the same:
+                if (i == 0) {
+                    //this user is first! congratulations!
+                    listGrade.set(i, u.getId());
+                    u.setGradePosition(i + 1);
+                    //no need to set rank in grade!
+                    //u.getCompetition(c_id).setRank_in_reg();
+                    //u.setRegionPosition(regionRank);
+                    //DEBUG:.................................................
+//                    int[] tmp1 = new int[5];
+//                    tmp1[0]=u.getCompetition(c_id).getScore();
+//                    tmp1[1]=u.getGradePosition();
+//                    tmp1[2]=u.getCompetition(c_id).getRank_in_grade();
+//                    tmp1[3] = u.getRegionPosition();
+//                    tmp1[4] = u.getCompetition(c_id).getRank_in_reg();
+//                    listGrade_Debug.set(i, tmp1);
+                    //.......................................................
+                    return;
+                }
+                u_2 = mapGrade.get(listGrade.get(i - 1));
+            }
+            //ops, someone has a score equal or more than our user's
+            /* again if the new score is the same with the one's score who
+               stands just before, we need to take the current position as
+               users position and the rank of u-2 as his new rank!*/
+            listGrade.set(i, u.getId());
+            u.setGradePosition(i + 1);
+            if((length == u_2.getCompetition(c_id).getTaskLt(p_id)) && (max == u_2.getCompetition(c_id).getTaskAns(p_id))){
+                u.getCompetition(c_id)
+                        .setRank_in_grade(u_2.getCompetition(c_id).getRank_in_grade());
+                if(u_2.getRegion().equals(region)) {
+                    u.getCompetition(c_id)
+                            .setRank_in_reg(u_2.getCompetition(c_id).getRank_in_reg());
+                }else{
+                    for(int j=i-2; j>=0; j--){
+                        u_2 = mapGrade.get(listGrade.get(j));
+                        if((length != u_2.getCompetition(c_id).getTaskLt(p_id)) || (max != u_2.getCompetition(c_id).getTaskAns(p_id))) {
+                            //u.getCompetition(c_id).setRank_in_reg(regionRank);
+                            u.getCompetition(c_id).setRank_in_reg(u.getRegionPosition()); //i+1
+                            break;
+                        }
+                        if(u_2.getRegion().equals(region)){
+                            u.getCompetition(c_id)
+                                    .setRank_in_reg(u_2.getCompetition(c_id).getRank_in_reg());
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private static void CTE_output() {
+        User u;
+        int index = 4;
+        ObjectId p_id = new ObjectId("5e9efd8c1813b22c476c788b");
+        ObjectId c_id = new ObjectId("5e9efd8c1813b22c476c788c");
+        int score, length, max;
+        int gR,gP;
+        int rR,rP;
+        String region;
+        int c =0;
+        System.out.println("Grade:" + competitionValidGrade.get(index));
+        for(int i =200; i<700; i++){
+            //u = mapGrade_b.get(listGrade_b.get(i));
+            u = mapGrades.get(index).get(listGrades.get(index).get(i));
+            length = u.getCompetition(c_id).getTaskLt(p_id);
+            max = u.getCompetition(c_id).getTaskAns(p_id);
+            score = u.getCompetition(c_id).getScore();
+            gR = u.getCompetition(c_id).getRank_in_grade();
+            gP = u.getGradePosition();
+            rR = u.getCompetition(c_id).getRank_in_reg();
+            rP = u.getRegionPosition();
+            region = u.getRegion();
+            //if (region.equals("SPB"))
+                System.out.println("Student_ID: " + u.getId() + " | length:" + length + " | max:" + max + " | Score:" + score + " | Rank:" + gR + " | Position:" + gP + " | Region_Rank:" + rR + " | Region_Position: " + rP + " | Region:" + region);
+
+        }
     }
 }

@@ -1056,7 +1056,7 @@ public class MainTest {
     @Test
     public void mytest() {
         Random rand = new Random(1000);
-        int[] A = new int[6];
+        int[] A = new int[7];
         for(int i =0; i<A.length;i++)
             A[i]= rand.nextInt(10);
         int K = 13;
@@ -1069,4 +1069,43 @@ public class MainTest {
         System.arraycopy(tmp, 0, A, 0, k);
 
     }
+
+    private HashMap<Integer, Integer> hm;
+    @Test
+    public void solution() {
+        Random rand = new Random(1000);
+        //int[] A = new int[7];
+        int[] A = new int[]{4,3,5,5,3,1,4,2,4,2,6,8,7,6,7,8,6,9,9};
+        //for(int i =0; i<A.length;i++)
+           // A[i]= rand.nextInt(10);
+        int[] B = Arrays.copyOf(A,A.length);
+        int[] C;
+        C = Arrays.copyOfRange(B, 4, 6);
+
+
+        Arrays.sort(B);
+        List<Integer> l = new ArrayList<>();
+        l.add(3);
+        l.add(4);
+        l.add(5);
+        l.add(6);
+        l.add(1,-1);
+        List<Integer> l1 = new ArrayList<>(l.subList(0, l.size()));
+        //l1 = l.subList(0, l.size());
+        l1.add(4,-10);
+        B[0] = 54;
+        hm = new HashMap<>();
+        for (int value : A) {
+            if (hm.keySet().contains(value)) {
+                hm.remove(value);
+            } else {
+                hm.put(value, 1);
+            }
+        }
+        System.out.println( hm.keySet().iterator().next());
+//        for (Integer integer : hm.keySet()) {
+//            System.out.println(integer);
+//        }
+    }
+
 }

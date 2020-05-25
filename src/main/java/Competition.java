@@ -47,6 +47,9 @@ public class Competition {
     public void setScore(final int score) {
         this.score = score;
     }
+    public void updateScore(final int value){
+        score += value;
+    }
 
     public int getRank_in_grade() {
         return rank_in_grade;
@@ -85,20 +88,20 @@ public class Competition {
 
     //returns the corresponding answer of user OR NULL if it does not exist/
     public int[] getTask(ObjectId id) {
-        return tasks.get(_id);
+        return tasks.get(id);
     }
     public int getTaskLt(ObjectId id) {
-        return tasks.get(_id)[0];
+        return tasks.get(id)[0];
     }
     public int getTaskAns(ObjectId id) {
-        return tasks.get(_id)[1];
+        return tasks.get(id)[1];
     }
 
     public void updateTask(ObjectId p_id, int lt, int mark) throws Exception {
         int[] ans = tasks.get(p_id);
         if(ans != null){
             //if the saved answer is newer do nothing!
-            if(ans[0]>=lt)
+            if(ans[0]>lt)
                 return;
             updateScore(ans[1], mark * ans[2]);
             ans[0]=lt;

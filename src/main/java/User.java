@@ -144,8 +144,8 @@ public class User {
         try {
             s = Main.users.get(regBy).getRegion();
         } catch (Exception e) {
-            e.printStackTrace();
-            System.err.println("****User's registrant id did not found in the Map****");
+           // e.printStackTrace();
+           // System.err.println("****User's registrant id did not found in the Map****");
         }
         return s;
     }

@@ -8,6 +8,7 @@ import org.bson.conversions.Bson;
 
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.SubmissionPublisher;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
@@ -154,8 +155,9 @@ public class MongoHandler {
     public void getCompetitions(){
         submissionCollections = new ArrayList<>();
         //submissionCollections.add( database.getCollection(competitionTitle, Submission.class));
-        submissionCollections.add( database.getCollection("bebras17_3_4", Submission.class));
-        submissionCollections.add( database.getCollection("bebras17_5_6", Submission.class));
+      //  submissionCollections.add( database.getCollection("bebras17_3_4", Submission.class));
+        //submissionCollections.add( database.getCollection("bebras17_5_6", Submission.class));
+        submissionCollections.add( database.getCollection("cte_contest", Submission.class));
         //submissionCollection = database.getCollection(competitionTitle, Submission.class);
         //submissionCollection = submissionCollections.get(0);
     }
@@ -171,7 +173,11 @@ public class MongoHandler {
                             .sort(Indexes.ascending("st"));
             try (MongoCursor<Submission> cursor = findIterable.iterator()) {
                 while (cursor.hasNext()) {
-                    submissionQueue.add(cursor.next());
+                    Submission s = cursor.next();
+                    submissionQueue.add(s);
+                    if(s.getPid().equals(new ObjectId("5e9efd8c1813b22c476c788b"))){
+                        int t = 8;
+                    }
                 }
             }
         }
@@ -245,7 +251,6 @@ public class MongoHandler {
     }
 
     HashMap<ObjectId, User> getUsers(){
-        List<Problem> userList = new ArrayList<>();
         HashMap<ObjectId, User> userHashMap = new HashMap<>();
         FindIterable<User> findIterable = userCollection.find();
         MongoCursor<User> cursor = findIterable.iterator();
@@ -268,3 +273,4 @@ public class MongoHandler {
         return userHashMap;
     }
 }
+
