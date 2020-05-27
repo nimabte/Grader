@@ -118,11 +118,11 @@ public class Main {
         Queue<Submission> submissions = mongoHandler.readSubmissions();
         long start = System.currentTimeMillis();
         checkSubmissions(problems, submissions);
-        ObjectId c_id = new ObjectId("5e9efd8c1813b22c476c788c");
-        for(ObjectId u_id : listGrades.get(4)) {
-            User u = users.get(u_id);
-            u.getCompetition(c_id).setScore(listGrades.get(4).size() - u.getCompetition(c_id).getRank_in_grade());
-        }
+//        ObjectId c_id = new ObjectId("5e9efd8c1813b22c476c788c");
+//        for(ObjectId u_id : listGrades.get(4)) {
+//            User u = users.get(u_id);
+//            u.getCompetition(c_id).setScore(listGrades.get(4).size() - u.getCompetition(c_id).getRank_in_grade());
+//        }
         long end = System.currentTimeMillis();
         long elapsedTime = end - start;
 
@@ -154,10 +154,10 @@ public class Main {
             a = s.getA();
             //TODO: define sets of problems for competitions load the HashMap according to c_id
             if(c_id.equals(new ObjectId("5e9efd8c1813b22c476c788c"))) {
-                if(u_id.equals(new ObjectId("5a008da86276eea191295965"))){
-                    int t;
-                    t = 5;
-                }
+//                if(u_id.equals(new ObjectId("5a008da86276eea191295965"))){
+//                    int t;
+//                    t = 5;
+//                }
                 evaluate_CTE(p_id, u_id, c_id, lt, a);
             }else {
                 p = problems.get(p_id); // get problem in the format of BsonDocument
@@ -1132,6 +1132,7 @@ public class Main {
             while((length > u_2.getCompetition(c_id).getTaskLt(p_id)) || ((length == u_2.getCompetition(c_id).getTaskLt(p_id)) && (max < u_2.getCompetition(c_id).getTaskAns(p_id)))){
                 listGrade.set(i, u_2.getId()); // put u-2 at the current pointer
                 u_2.getCompetition(c_id).updateRank_in_grade(1); // his rank now is one more! of course!
+                //u_2.getCompetition(c_id).updateScore(-1);
                 u_2.updateGradePosition(1); // the same store for the position
                 if (u_2.getRegion().equals(region)) {
                     u_2.getCompetition(c_id).updateRank_in_reg(1);
@@ -1149,6 +1150,8 @@ public class Main {
                     //this user is first! congratulations!
                     listGrade.set(i, u.getId());
                     u.setGradePosition(i + 1);
+                    u.getCompetition(c_id).setScore(listGrade.size() -  u.getGradePosition());
+                    //u.getCompetition(c_id).setScore(listGrade.size() -  u.getCompetition(c_id).getRank_in_grade());
                     return;
                 }
                 u_2 = mapGrade.get(listGrade.get(i - 1));
@@ -1164,6 +1167,10 @@ public class Main {
                         .setRank_in_grade(u_2.getCompetition(c_id).getRank_in_grade());
                 //for regional ranking we need to check the region of people with the same score
                 //the new regional rank shod be the same. or the same as position if we did not find any.
+//                for(int k=i-1; k>=0; k--){
+//                    User user = mapGrade.get(listGrade.get(k));
+//                    user.getCompetition(c_id).updateScore(1);
+//                }
                 if(u_2.getRegion().equals(region)) {
                     u.getCompetition(c_id)
                             .setRank_in_reg(u_2.getCompetition(c_id).getRank_in_reg());
@@ -1172,6 +1179,11 @@ public class Main {
                         u_2 = mapGrade.get(listGrade.get(j));
                         if(length != u_2.getCompetition(c_id).getTaskLt(p_id) || max != u_2.getCompetition(c_id).getTaskAns(p_id)) {
                             //u.getCompetition(c_id).setRank_in_reg(u.getRegionPosition());
+                            u_2.getCompetition(c_id).updateScore(1);
+                            for(int k=j-1; k>=0; k--){
+                                User user = mapGrade.get(listGrade.get(k));
+                                user.getCompetition(c_id).updateScore(1);
+                            }
                             break;
                         }
                         if(u_2.getRegion().equals(region)){
@@ -1188,11 +1200,17 @@ public class Main {
             else { //if(score < u_2.getCompetition(c_id).getScore()){
                 listGrade.set(i, u.getId());
                 u.setGradePosition(i + 1);
+                for(int k=i-1; k>=0; k--){
+                    User user = mapGrade.get(listGrade.get(k));
+                    user.getCompetition(c_id).updateScore(1);
+                }
                 //no need to set rank in grade!
                 //u.getCompetition(c_id).setRank_in_reg(regionRank);
                 //u.setRegionPosition(regionRank);
             }
         }
+        u.getCompetition(c_id).setScore(listGrade.size() -  u.getGradePosition());
+        //u.getCompetition(c_id).setScore(listGrade.size() -  u.getCompetition(c_id).getRank_in_grade());
         // here our use is already the first place, all his rank are already 1.
         // we have already increased the rank of other with the same previous score!
         // nothing to do then!
@@ -1215,6 +1233,7 @@ public class Main {
                     break;
                 //n change in position
                 u_2.getCompetition(c_id).updateRank_in_grade(1);
+                //u_2.getCompetition(c_id).updateScore(-1);
                 if(u_2.getRegion().equals(region)){
                     u_2.getCompetition(c_id).updateRank_in_reg(1);
                     //u_2.updateRegionPosition(1);
@@ -1228,6 +1247,7 @@ public class Main {
             while ((oldLength == u_2.getCompetition(c_id).getTaskLt(p_id)) && (oldMax == u_2.getCompetition(c_id).getTaskAns(p_id))) {
                 listGrade.set(i, u_2.getId());
                 u_2.getCompetition(c_id).updateRank_in_grade(1);
+                //u_2.getCompetition(c_id).updateScore(-1);
                 u_2.updateGradePosition(1);
                 if(u_2.getRegion().equals(region)){
                     u_2.getCompetition(c_id).updateRank_in_reg(1);
@@ -1243,6 +1263,8 @@ public class Main {
                     listGrade.set(i, u.getId());
                     u.setGradePosition(i + 1);
                     //no need to set rank in grade!
+                    u.getCompetition(c_id).setScore(listGrade.size() -  u.getGradePosition());
+                    //u.getCompetition(c_id).setScore(listGrade.size() -  u.getCompetition(c_id).getRank_in_grade());
                     return;
                 }
                 u_2 = mapGrade.get(listGrade.get(i - 1));
@@ -1253,6 +1275,7 @@ public class Main {
             while((length > u_2.getCompetition(c_id).getTaskLt(p_id)) || ((length == u_2.getCompetition(c_id).getTaskLt(p_id)) && (max < u_2.getCompetition(c_id).getTaskAns(p_id)))){
                 listGrade.set(i, u_2.getId()); // put u-2 at the current pointer
                 u_2.getCompetition(c_id).updateRank_in_grade(1); // his rank now is one more! of course!
+                u_2.getCompetition(c_id).updateScore(-1);
                 u_2.updateGradePosition(1); // the same store for the position
                 if (u_2.getRegion().equals(region)) {
                     u_2.getCompetition(c_id).updateRank_in_reg(1);
@@ -1290,6 +1313,8 @@ public class Main {
 //                    tmp1[4] = u.getCompetition(c_id).getRank_in_reg();
 //                    listGrade_Debug.set(i, tmp1);
                     //.......................................................
+                    u.getCompetition(c_id).setScore(listGrade.size() -  u.getGradePosition());
+                    //u.getCompetition(c_id).setScore(listGrade.size() -  u.getCompetition(c_id).getRank_in_grade());
                     return;
                 }
                 u_2 = mapGrade.get(listGrade.get(i - 1));
@@ -1303,6 +1328,7 @@ public class Main {
             if((length == u_2.getCompetition(c_id).getTaskLt(p_id)) && (max == u_2.getCompetition(c_id).getTaskAns(p_id))){
                 u.getCompetition(c_id)
                         .setRank_in_grade(u_2.getCompetition(c_id).getRank_in_grade());
+                u_2.getCompetition(c_id).updateScore(-1);
                 if(u_2.getRegion().equals(region)) {
                     u.getCompetition(c_id)
                             .setRank_in_reg(u_2.getCompetition(c_id).getRank_in_reg());
@@ -1314,15 +1340,18 @@ public class Main {
                             u.getCompetition(c_id).setRank_in_reg(u.getRegionPosition()); //i+1
                             break;
                         }
+                        u_2.getCompetition(c_id).updateScore(-1);
                         if(u_2.getRegion().equals(region)){
                             u.getCompetition(c_id)
                                     .setRank_in_reg(u_2.getCompetition(c_id).getRank_in_reg());
-                            break;
+                           // break;
                         }
                     }
                 }
             }
         }
+        u.getCompetition(c_id).setScore(listGrade.size() -  u.getGradePosition());
+        //u.getCompetition(c_id).setScore(listGrade.size() -  u.getCompetition(c_id).getRank_in_grade());
     }
 
     private static void CTE_output() {
@@ -1336,7 +1365,7 @@ public class Main {
         String region;
         int c =0;
         System.out.println("Grade:" + competitionValidGrade.get(index));
-        for(int i =200; i<700; i++){
+        for(int i =0; i<20; i++){
             //u = mapGrade_b.get(listGrade_b.get(i));
             u = mapGrades.get(index).get(listGrades.get(index).get(i));
             length = u.getCompetition(c_id).getTaskLt(p_id);

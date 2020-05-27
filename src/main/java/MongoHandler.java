@@ -157,7 +157,7 @@ public class MongoHandler {
         //submissionCollections.add( database.getCollection(competitionTitle, Submission.class));
       //  submissionCollections.add( database.getCollection("bebras17_3_4", Submission.class));
         //submissionCollections.add( database.getCollection("bebras17_5_6", Submission.class));
-        submissionCollections.add( database.getCollection("cte_contest", Submission.class));
+        submissionCollections.add( database.getCollection("cte_contest_test", Submission.class));
         //submissionCollection = database.getCollection(competitionTitle, Submission.class);
         //submissionCollection = submissionCollections.get(0);
     }
