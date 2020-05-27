@@ -1174,24 +1174,24 @@ public class Main {
                 if(u_2.getRegion().equals(region)) {
                     u.getCompetition(c_id)
                             .setRank_in_reg(u_2.getCompetition(c_id).getRank_in_reg());
-                }else{
-                    for(int j=i-2; j>=0; j--){
-                        u_2 = mapGrade.get(listGrade.get(j));
-                        if(length != u_2.getCompetition(c_id).getTaskLt(p_id) || max != u_2.getCompetition(c_id).getTaskAns(p_id)) {
-                            //u.getCompetition(c_id).setRank_in_reg(u.getRegionPosition());
-                            u_2.getCompetition(c_id).updateScore(1);
-                            for(int k=j-1; k>=0; k--){
-                                User user = mapGrade.get(listGrade.get(k));
-                                user.getCompetition(c_id).updateScore(1);
-                            }
-                            break;
+                }
+                for(int j=i-2; j>=0; j--){
+                    u_2 = mapGrade.get(listGrade.get(j));
+                    if(length != u_2.getCompetition(c_id).getTaskLt(p_id) || max != u_2.getCompetition(c_id).getTaskAns(p_id)) {
+                        //u.getCompetition(c_id).setRank_in_reg(u.getRegionPosition());
+                        u_2.getCompetition(c_id).updateScore(1);
+                        for(int k=j-1; k>=0; k--){
+                            User user = mapGrade.get(listGrade.get(k));
+                            user.getCompetition(c_id).updateScore(1);
                         }
-                        if(u_2.getRegion().equals(region)){
-                            u.getCompetition(c_id)
-                                    .setRank_in_reg(u_2.getCompetition(c_id).getRank_in_reg());
-                            break;
-                        }
+                        break;
                     }
+                    if(u_2.getRegion().equals(region)){
+                        u.getCompetition(c_id)
+                                .setRank_in_reg(u_2.getCompetition(c_id).getRank_in_reg());
+                        break;
+                    }
+
                 }
             }
             /* just as before if the new score is less than what is just before,
@@ -1332,22 +1332,22 @@ public class Main {
                 if(u_2.getRegion().equals(region)) {
                     u.getCompetition(c_id)
                             .setRank_in_reg(u_2.getCompetition(c_id).getRank_in_reg());
-                }else{
-                    for(int j=i-2; j>=0; j--){
-                        u_2 = mapGrade.get(listGrade.get(j));
-                        if((length != u_2.getCompetition(c_id).getTaskLt(p_id)) || (max != u_2.getCompetition(c_id).getTaskAns(p_id))) {
-                            //u.getCompetition(c_id).setRank_in_reg(regionRank);
-                            u.getCompetition(c_id).setRank_in_reg(u.getRegionPosition()); //i+1
-                            break;
-                        }
-                        u_2.getCompetition(c_id).updateScore(-1);
-                        if(u_2.getRegion().equals(region)){
-                            u.getCompetition(c_id)
-                                    .setRank_in_reg(u_2.getCompetition(c_id).getRank_in_reg());
-                           // break;
-                        }
+                }
+                for(int j=i-2; j>=0; j--){
+                    u_2 = mapGrade.get(listGrade.get(j));
+                    if((length != u_2.getCompetition(c_id).getTaskLt(p_id)) || (max != u_2.getCompetition(c_id).getTaskAns(p_id))) {
+                        //u.getCompetition(c_id).setRank_in_reg(regionRank);
+                        u.getCompetition(c_id).setRank_in_reg(u.getRegionPosition()); //i+1
+                        break;
+                    }
+                    u_2.getCompetition(c_id).updateScore(-1);
+                    if(u_2.getRegion().equals(region)){
+                        u.getCompetition(c_id)
+                                .setRank_in_reg(u_2.getCompetition(c_id).getRank_in_reg());
+                       // break;
                     }
                 }
+
             }
         }
         u.getCompetition(c_id).setScore(listGrade.size() -  u.getGradePosition());
